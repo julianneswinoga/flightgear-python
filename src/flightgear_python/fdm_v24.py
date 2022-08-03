@@ -1,4 +1,4 @@
-from construct import *
+from construct import Struct, Array, Enum, Const, Padding, Int32ub, Int32sb, Float64b, Float32b
 
 # https://github.com/FlightGear/flightgear/blob/next/src/Network/net_fdm.hxx
 # Version 24

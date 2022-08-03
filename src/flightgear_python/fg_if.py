@@ -1,7 +1,7 @@
 import socket
 import sys
 import multiprocessing as mp
-from typing import *
+from typing import Callable
 
 from construct import ConstError
 
