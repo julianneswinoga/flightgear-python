@@ -2,7 +2,6 @@
 import time
 from src.flightgear_python.fg_if import FDMConnection
 
-
 def fdm_callback(fdm_data, event_pipe):
     phi_rad, = event_pipe.child_recv()  # unpack tuple
     fdm_data.phi_rad = phi_rad  # set only the data that we need to
@@ -11,6 +10,7 @@ def fdm_callback(fdm_data, event_pipe):
 
 """
 Start FlightGear with `--native-fdm=socket,out,30,,5501,udp --native-fdm=socket,in,30,,5502,udp`
+(you probably also want --fdm=null to stop the simulation fighting with these external commands)
 May need to change fdm_version from 24
 """
 fdm_conn = FDMConnection(fdm_version=24)

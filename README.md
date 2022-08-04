@@ -1,9 +1,9 @@
 # FlightGear Python Interface
 
+Simple example (see `examples/simple.py`) that makes the altitude increase and the plane roll in the air.
 ```python
 import time
 from src.flightgear_python.fg_if import FDMConnection
-
 
 def fdm_callback(fdm_data, event_pipe):
     phi_rad, = event_pipe.child_recv()  # unpack tuple

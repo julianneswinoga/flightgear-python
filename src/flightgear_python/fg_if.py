@@ -2,9 +2,9 @@ import math
 import socket
 import sys
 import multiprocessing as mp
-from typing import Callable
+from typing import Callable, Optional, Tuple, Any
 
-from construct import ConstError
+from construct import ConstError, Struct
 
 
 class EventPipe:
@@ -29,13 +29,13 @@ class EventPipe:
             self.parent_pipe.send(*args, **kwargs)
             self.set()
 
-    def child_recv(self, *args, **kwargs):
+    def child_recv(self, *args, **kwargs) -> Any:
         msg = self.child_pipe.recv(*args, **kwargs)
         self.clear()
         return msg
 
 
-def offset_fg_radian(in_rad):
+def offset_fg_radian(in_rad: float) -> float:
     """
     Even when echoing back literally what FG sends over the Net FDM connection,
     (i.e. UDP bytes in -> UDP bytes out) the latitude/longitude shown in FG
@@ -49,7 +49,7 @@ def offset_fg_radian(in_rad):
     return math.degrees(in_rad) * coeff
 
 
-def fix_fg_radian_parsing(s):
+def fix_fg_radian_parsing(s: Struct) -> Struct:
     s.lon_rad += offset_fg_radian(s.lon_rad)
     s.lat_rad += offset_fg_radian(s.lat_rad)
     s.phi_rad += offset_fg_radian(s.phi_rad)
@@ -63,21 +63,24 @@ def fix_fg_radian_parsing(s):
     return s
 
 
+rx_callback_type = Callable[[Struct, EventPipe], Struct]
+
+
 class FGConnection:
-    fg_net_struct = None
+    fg_net_struct: Optional[Struct] = None
 
     def __init__(self):
         self.event_pipe = EventPipe(duplex=False)
 
-        self.fg_rx_sock = None
-        self.fg_rx_cb = None
+        self.fg_rx_sock: Optional[socket.socket] = None
+        self.fg_rx_cb: Optional[rx_callback_type] = None
 
-        self.fg_tx_sock = None
-        self.fg_tx_addr = None
+        self.fg_tx_sock: Optional[socket.socket] = None
+        self.fg_tx_addr: Optional[Tuple[str, int]] = None
 
-        self.rx_proc = None
+        self.rx_proc: Optional[mp.Process] = None
 
-    def connect_rx(self, fg_host: str, fg_port: int, rx_cb: Callable):
+    def connect_rx(self, fg_host: str, fg_port: int, rx_cb: rx_callback_type) -> EventPipe:
         # TODO: Support TCP server so that we only need 1 port
         self.fg_rx_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         fg_rx_addr = (fg_host, fg_port)
@@ -112,7 +115,10 @@ class FGConnection:
             sys.stdout.flush()
             tx_msg = self.fg_net_struct.build(dict(**s))
             # Send data back to FG
-            self.fg_tx_sock.sendto(tx_msg, self.fg_tx_addr)
+            if self.fg_tx_sock is not None:
+                self.fg_tx_sock.sendto(tx_msg, self.fg_tx_addr)
+            else:
+                print(f'Warning: TX not connected, not sending updates to FG for RX {self.fg_rx_sock.getsockname()}')
 
     def start(self):
         self.rx_proc = mp.Process(target=self._rx_process)
@@ -123,7 +129,7 @@ class FGConnection:
 
 
 class FDMConnection(FGConnection):
-    def __init__(self, fdm_version):
+    def __init__(self, fdm_version: int):
         super().__init__()
         # TODO: Support auto-version check
         if fdm_version == 24:
