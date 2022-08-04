@@ -1,3 +1,4 @@
+import math
 import socket
 import sys
 import multiprocessing as mp
@@ -23,13 +24,43 @@ class EventPipe:
         # self.parent_poll = self.parent_pipe.poll
 
     def parent_send(self, *args, **kwargs):
-        self.parent_pipe.send(*args, **kwargs)
-        self.set()
+        if not self.is_set():
+            # Only send when data has been received
+            self.parent_pipe.send(*args, **kwargs)
+            self.set()
 
     def child_recv(self, *args, **kwargs):
         msg = self.child_pipe.recv(*args, **kwargs)
         self.clear()
         return msg
+
+
+def offset_fg_radian(in_rad):
+    """
+    Even when echoing back literally what FG sends over the Net FDM connection,
+    (i.e. UDP bytes in -> UDP bytes out) the latitude/longitude shown in FG
+    appear to decrease. After plotting the offsets at a couple different lat/lons
+    it appears to be a linear relationship and identical in anything that is
+    represented in radians. The coefficient was chosen through trial-and-error.
+    :param in_rad: Input property, in radians
+    :return: Offset that needs to be applied to the input, in radians
+    """
+    coeff = 1.09349403e-9
+    return math.degrees(in_rad) * coeff
+
+
+def fix_fg_radian_parsing(s):
+    s.lon_rad += offset_fg_radian(s.lon_rad)
+    s.lat_rad += offset_fg_radian(s.lat_rad)
+    s.phi_rad += offset_fg_radian(s.phi_rad)
+    s.theta_rad += offset_fg_radian(s.theta_rad)
+    s.psi_rad += offset_fg_radian(s.psi_rad)
+    s.alpha_rad += offset_fg_radian(s.alpha_rad)
+    s.beta_rad += offset_fg_radian(s.beta_rad)
+    s.phidot_rad_per_s += offset_fg_radian(s.phidot_rad_per_s)
+    s.thetadot_rad_per_s += offset_fg_radian(s.thetadot_rad_per_s)
+    s.psidot_rad_per_s += offset_fg_radian(s.psidot_rad_per_s)
+    return s
 
 
 class FGConnection:
@@ -47,27 +78,31 @@ class FGConnection:
         self.rx_proc = None
 
     def connect_rx(self, fg_host: str, fg_port: int, rx_cb: Callable):
+        # TODO: Support TCP server so that we only need 1 port
         self.fg_rx_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         fg_rx_addr = (fg_host, fg_port)
         self.fg_rx_sock.bind(fg_rx_addr)
         self.fg_rx_cb = rx_cb
-        print(f'Connected to FlightGear RX socket {fg_port}')
 
         return self.event_pipe
 
     def connect_tx(self, fg_host: str, fg_port: int):
         self.fg_tx_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.fg_tx_addr = (fg_host, fg_port)
-        print(f'Connected to FlightGear TX socket {fg_port}')
 
     def _rx_process(self):
         while True:
             # Receive up to 1KB of data from FG
+            # blocking is fine here since we're in a separate process
             rx_msg, _ = self.fg_rx_sock.recvfrom(1024)
             try:
                 s = self.fg_net_struct.parse(rx_msg)
             except ConstError as e:
                 raise AssertionError(f'Could not decode FG stream. Is this the right FDM version?\n{e}')
+
+            # Fix FG's radian parsing error :(
+            s = fix_fg_radian_parsing(s)
+
             # Call user method
             if self.event_pipe.is_set() and self.event_pipe.child_poll():
                 # only update when we have data to send
@@ -90,6 +125,7 @@ class FGConnection:
 class FDMConnection(FGConnection):
     def __init__(self, fdm_version):
         super().__init__()
+        # TODO: Support auto-version check
         if fdm_version == 24:
             from .fdm_v24 import fdm_struct
         elif fdm_version == 25:
