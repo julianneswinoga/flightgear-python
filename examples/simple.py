@@ -9,8 +9,8 @@ def fdm_callback(fdm_data, event_pipe):
     return fdm_data  # return the whole structure
 
 """
-Start FlightGear with `--native-fdm=socket,out,30,,5501,udp --native-fdm=socket,in,30,,5502,udp`
-(you probably also want --fdm=null to stop the simulation fighting with these external commands)
+Start FlightGear with `--native-fdm=socket,out,30,,5501,udp --native-fdm=socket,in,,,5502,udp`
+(you probably also want `--fdm=null` and `--max-fps=30` to stop the simulation fighting with these external commands)
 May need to change fdm_version from 24
 """
 fdm_conn = FDMConnection(fdm_version=24)
