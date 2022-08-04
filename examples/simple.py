@@ -1,6 +1,4 @@
-# FlightGear Python Interface
-
-```python
+#!/usr/bin/python3
 import time
 from src.flightgear_python.fg_if import FDMConnection
 
@@ -26,4 +24,3 @@ while True:
     # could also do `fdm_conn.event_pipe.parent_send` so you just need to pass around `fdm_conn`
     fdm_event_pipe.parent_send((phi_rad, ))  # send tuple
     time.sleep(0.01)
-```
