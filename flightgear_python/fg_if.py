@@ -42,6 +42,8 @@ def offset_fg_radian(in_rad: float) -> float:
     appear to decrease. After plotting the offsets at a couple different lat/lons
     it appears to be a linear relationship and identical in anything that is
     represented in radians. The coefficient was chosen through trial-and-error.
+    sphinx-no-autoapi
+
     :param in_rad: Input property, in radians
     :return: Offset that needs to be applied to the input, in radians
     """
@@ -50,6 +52,7 @@ def offset_fg_radian(in_rad: float) -> float:
 
 
 def fix_fg_radian_parsing(s: Struct) -> Struct:
+    """sphinx-no-autoapi"""
     s.lon_rad += offset_fg_radian(s.lon_rad)
     s.lat_rad += offset_fg_radian(s.lat_rad)
     s.phi_rad += offset_fg_radian(s.phi_rad)
@@ -64,9 +67,20 @@ def fix_fg_radian_parsing(s: Struct) -> Struct:
 
 
 rx_callback_type = Callable[[Struct, EventPipe], Struct]
+"""
+RX callback function type, signature should be:
+
+.. code-block:: python
+
+    def rx_cb(fdm_data: Construct.Struct, event_pipe: EventPipe):
+"""
 
 
 class FGConnection:
+    """
+    Base class for FlightGear connections
+    sphinx-no-autoapi
+    """
     fg_net_struct: Optional[Struct] = None
 
     def __init__(self):
@@ -129,7 +143,15 @@ class FGConnection:
 
 
 class FDMConnection(FGConnection):
+    """
+    FlightGear FDM Connection
+
+    :param fdm_version: FDM version
+    """
     def __init__(self, fdm_version: int):
+        """
+        aaaa
+        """
         super().__init__()
         # TODO: Support auto-version check
         if fdm_version == 24:
