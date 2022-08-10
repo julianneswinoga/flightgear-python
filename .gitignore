@@ -1,5 +1,5 @@
 dist/
-src/*.egg-info/
+*.egg-info/
 .*venv*/
 docs/build/
 docs/source/generated/
