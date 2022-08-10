@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import time
-from src.flightgear_python.fg_if import FDMConnection
+from flightgear_python.fg_if import FDMConnection
 
 def fdm_callback(fdm_data, event_pipe):
     phi_rad, = event_pipe.child_recv()  # unpack tuple
