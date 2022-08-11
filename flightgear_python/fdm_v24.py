@@ -2,11 +2,12 @@ from construct import Struct, Array, Enum, Const, Padding, Int32ub, Int32sb, Flo
 
 # https://github.com/FlightGear/flightgear/blob/next/src/Network/net_fdm.hxx
 # Version 24
-FG_MAX_ENGINES = 4
-FG_MAX_WHEELS = 3
-FG_MAX_TANKS = 4
+FG_MAX_ENGINES = 4  #:
+FG_MAX_WHEELS = 3  #:
+FG_MAX_TANKS = 4  #:
 
 # Big endian
+#:
 fdm_struct = Struct(
     'version' / Const(24, Int32ub),
     '_padding' / Padding(4),

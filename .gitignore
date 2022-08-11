@@ -2,4 +2,4 @@ dist/
 *.egg-info/
 .*venv*/
 docs/build/
-docs/source/generated/
+docs/source/_autosummary/
