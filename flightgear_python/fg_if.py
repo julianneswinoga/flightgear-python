@@ -42,7 +42,7 @@ def offset_fg_radian(in_rad: float) -> float:
     appear to decrease. After plotting the offsets at a couple different lat/lons
     it appears to be a linear relationship and identical in anything that is
     represented in radians. The coefficient was chosen through trial-and-error.
-    sphinx-no-autoapi
+    sphinx-no-autodoc
 
     :param in_rad: Input property, in radians
     :return: Offset that needs to be applied to the input, in radians
@@ -52,7 +52,7 @@ def offset_fg_radian(in_rad: float) -> float:
 
 
 def fix_fg_radian_parsing(s: Struct) -> Struct:
-    """sphinx-no-autoapi"""
+    """sphinx-no-autodoc"""
     s.lon_rad += offset_fg_radian(s.lon_rad)
     s.lat_rad += offset_fg_radian(s.lat_rad)
     s.phi_rad += offset_fg_radian(s.phi_rad)
@@ -79,7 +79,7 @@ RX callback function type, signature should be:
 class FGConnection:
     """
     Base class for FlightGear connections
-    sphinx-no-autoapi
+    sphinx-no-autodoc
     """
     fg_net_struct: Optional[Struct] = None
 
