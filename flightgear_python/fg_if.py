@@ -8,6 +8,13 @@ from construct import ConstError, Struct
 
 
 class EventPipe:
+    """
+    Helper abstraction for passing data from a parent process to a child
+    process.
+
+    :param duplex: Allow internal pipe to also pass data from child to \
+    parent. Recommended to leave at default
+    """
     def __init__(self, duplex=False):
         self.event = mp.Event()
         # TODO: Any value in duplex?
@@ -24,12 +31,26 @@ class EventPipe:
         # self.parent_poll = self.parent_pipe.poll
 
     def parent_send(self, *args, **kwargs):
+        """
+        Send data from the parent process to the child process, then set\
+        our event flag
+
+        :param args: Passed to :meth:`multiprocessing.connection.Connection.send()`
+        :param kwargs: Passed to :meth:`multiprocessing.connection.Connection.send()`
+        """
         if not self.is_set():
             # Only send when data has been received
             self.parent_pipe.send(*args, **kwargs)
             self.set()
 
     def child_recv(self, *args, **kwargs) -> Any:
+        """
+        Receive data from the parent process to the child process, then clear\
+        our event flag
+
+        :param args: Passed to :meth:`multiprocessing.connection.Connection.recv()`
+        :param kwargs: Passed to :meth:`multiprocessing.connection.Connection.recv()`
+        """
         msg = self.child_pipe.recv(*args, **kwargs)
         self.clear()
         return msg
@@ -52,7 +73,10 @@ def offset_fg_radian(in_rad: float) -> float:
 
 
 def fix_fg_radian_parsing(s: Struct) -> Struct:
-    """sphinx-no-autodoc"""
+    """
+    Helper for all the radian values in the FDM
+    sphinx-no-autodoc
+    """
     s.lon_rad += offset_fg_radian(s.lon_rad)
     s.lat_rad += offset_fg_radian(s.lat_rad)
     s.phi_rad += offset_fg_radian(s.phi_rad)
@@ -95,6 +119,17 @@ class FGConnection:
         self.rx_proc: Optional[mp.Process] = None
 
     def connect_rx(self, fg_host: str, fg_port: int, rx_cb: rx_callback_type) -> EventPipe:
+        """
+        Connect to a UDP output of FlightGear
+
+        :param fg_host: IP address of FG (usually localhost)
+        :param fg_port: Port of the output socket (i.e. the ``5501`` from\
+        ``--native-fdm=socket,out,30,,5501,udp``)
+        :param rx_cb: Callback function, called whenever we receive data from FG.\
+        Function signature should follow :attr:`rx_callback_type`
+        :return: ``EventPipe`` so that data can be passed from the parent process\
+        to the callback process
+        """
         # TODO: Support TCP server so that we only need 1 port
         self.fg_rx_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         fg_rx_addr = (fg_host, fg_port)
@@ -104,6 +139,13 @@ class FGConnection:
         return self.event_pipe
 
     def connect_tx(self, fg_host: str, fg_port: int):
+        """
+        Connect to a UDP input of FlightGear
+
+        :param fg_host: IP address of FG (usually localhost)
+        :param fg_port: Port of the input socket (i.e. the ``5502`` from\
+        ``--native-fdm=socket,in,,,5502,udp``)
+        """
         self.fg_tx_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.fg_tx_addr = (fg_host, fg_port)
 
@@ -135,23 +177,26 @@ class FGConnection:
                 print(f'Warning: TX not connected, not sending updates to FG for RX {self.fg_rx_sock.getsockname()}')
 
     def start(self):
+        """
+        Start the RX/TX loop with FlightGear
+        """
         self.rx_proc = mp.Process(target=self._rx_process)
         self.rx_proc.start()
 
     def stop(self):
+        """
+        Stop the RX/TX loop
+        """
         self.rx_proc.terminate()
 
 
 class FDMConnection(FGConnection):
     """
-    FlightGear FDM Connection
+    FlightGear Flight Dynamics Model Connection
 
-    :param fdm_version: FDM version
+    :param fdm_version: Net FDM version (24 or 25)
     """
     def __init__(self, fdm_version: int):
-        """
-        aaaa
-        """
         super().__init__()
         # TODO: Support auto-version check
         if fdm_version == 24:

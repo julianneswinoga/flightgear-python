@@ -1,12 +1,16 @@
+"""
+FlightGear Flight Dynamics Model Network interface, version 25
+See https://github.com/FlightGear/flightgear/blob/4049acd84e6ce391184716d1020c456d389f919e/src/Network/net_fdm.hxx
+"""
+
 from construct import Struct, Array, Enum, Const, Padding, Int32ub, Int32sb, Float64b, Float32b
 
-# https://github.com/FlightGear/flightgear/blob/next/src/Network/net_fdm.hxx
-# Version 24
-FG_MAX_ENGINES = 4
-FG_MAX_WHEELS = 3
-FG_MAX_TANKS = 4
+FG_MAX_ENGINES = 4  #:
+FG_MAX_WHEELS = 3  #:
+FG_MAX_TANKS = 4  #:
 
 # Big endian
+#:
 fdm_struct = Struct(
     'version' / Const(25, Int32ub),
     '_padding' / Padding(4),
