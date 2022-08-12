@@ -11,13 +11,17 @@ extensions = [
     'sphinx_rtd_theme',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
+    'sphinx.ext.intersphinx',
 ]
+autodoc_typehints = 'description'
 autosummary_generate = True
+
+intersphinx_mapping = {
+    'python': ('http://docs.python.org/3', None),
+}
 
 templates_path = ['_templates']
 exclude_patterns = []
-
-autodoc_typehints = 'description'
 
 # HTML configuration
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
