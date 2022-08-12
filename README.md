@@ -1,5 +1,7 @@
 # FlightGear Python Interface
 
+Docs: https://flightgear-python.readthedocs.io/en/latest/
+
 Simple example (see `examples/simple.py`) that makes the altitude increase and the plane roll in the air.
 ```python
 import time
