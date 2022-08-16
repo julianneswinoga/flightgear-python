@@ -1,3 +1,7 @@
+"""
+Main FlightGear interface module
+"""
+
 import math
 import socket
 import sys
@@ -205,4 +209,5 @@ class FDMConnection(FGConnection):
             from .fdm_v25 import fdm_struct
         else:
             raise NotImplementedError(f'FDM version {fdm_version} not supported yet')
-        self.fg_net_struct = fdm_struct
+        # Create Struct from Dict
+        self.fg_net_struct = Struct(*[k / v for k, v in fdm_struct.items()])
