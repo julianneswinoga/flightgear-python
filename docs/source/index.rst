@@ -5,21 +5,21 @@ Welcome to flightgear-python's documentation!
 Don't know where to begin? Check out the :ref:`Quick-Start` page.
 
 .. toctree::
-   :caption: Table of Contents
+    :caption: Table of Contents
 
-   Welcome <self>
-   quickstart
-   examples
+    Welcome <self>
+    quickstart
+    examples
 
 API
 ---
 
 .. autosummary::
-   :toctree: _autosummary
-   :caption: API
-   :template: custom-module-template.rst
-   :recursive:
+    :toctree: _autosummary
+    :caption: API
+    :template: custom-module-template.rst
+    :recursive:
 
-   flightgear_python.fg_if
-   flightgear_python.fdm_v24
-   flightgear_python.fdm_v25
+    flightgear_python.fg_if
+    flightgear_python.fdm_v24
+    flightgear_python.fdm_v25
