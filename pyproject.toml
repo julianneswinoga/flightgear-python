@@ -24,5 +24,5 @@ doc = [
 
 [project.urls]
 Home = "https://github.com/julianneswinoga/flightgear-python"
-Documentation = "https://github.com/julianneswinoga/flightgear-python"
+Documentation = "https://flightgear-python.readthedocs.io/en/latest"
 Bug-Tracker = "https://github.com/julianneswinoga/flightgear-python/issues"

@@ -1,7 +1,7 @@
 Welcome to flightgear-python's documentation!
 =============================================
 
-``flightgear-python`` is a interface package to the `FlightGear flight simulation software <https://www.flightgear.org/>`_ aimed at simplicity.
+``flightgear-python`` is an interface package to the `FlightGear flight simulation software <https://www.flightgear.org/>`_ aimed at simplicity.
 Don't know where to begin? Check out the :ref:`Quick-Start` page.
 
 .. toctree::
