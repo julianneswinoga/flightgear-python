@@ -3,30 +3,30 @@
 .. currentmodule:: {{ module }}
 
 .. autoclass:: {{ objname }}
-   :members:
-   :show-inheritance:
-   :inherited-members:
+    :members:
+    :show-inheritance:
+    :inherited-members:
 
-   {% block methods %}
-   .. automethod:: __init__
+    {% block methods %}
+    .. automethod:: __init__
 
-   {% if methods %}
-   .. rubric:: {{ _('Methods') }}
+    {% if methods %}
+    .. rubric:: {{ _('Methods') }}
 
-   .. autosummary::
-   {% for item in methods %}
+    .. autosummary::
+    {% for item in methods %}
       ~{{ name }}.{{ item }}
-   {%- endfor %}
-   {% endif %}
-   {% endblock %}
+    {%- endfor %}
+    {% endif %}
+    {% endblock %}
 
-   {% block attributes %}
-   {% if attributes %}
-   .. rubric:: {{ _('Attributes') }}
+    {% block attributes %}
+    {% if attributes %}
+    .. rubric:: {{ _('Attributes') }}
 
-   .. autosummary::
-   {% for item in attributes %}
+    .. autosummary::
+    {% for item in attributes %}
       ~{{ name }}.{{ item }}
-   {%- endfor %}
-   {% endif %}
-   {% endblock %}
+    {%- endfor %}
+    {% endif %}
+    {% endblock %}

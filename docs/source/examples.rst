@@ -5,5 +5,5 @@ Simple FDM loop
 ---------------
 
 .. literalinclude:: /../../examples/simple.py
-   :caption: examples/simple.py
-   :lines: 2-
+    :caption: examples/simple.py
+    :lines: 2-
