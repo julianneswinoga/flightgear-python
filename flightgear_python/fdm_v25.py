@@ -6,12 +6,12 @@ See https://github.com/FlightGear/flightgear/blob/4049acd84e6ce391184716d1020c45
 
 from construct import Array, Enum, Const, Padding, Int32ub, Int32sb, Float64b, Float32b
 
-FG_MAX_ENGINES = 4  #:
-FG_MAX_WHEELS = 3  #:
-FG_MAX_TANKS = 4  #:
+FG_MAX_ENGINES = 4  #: Constant value from enum
+FG_MAX_WHEELS = 3  #: Constant value from enum
+FG_MAX_TANKS = 4  #: Constant value from enum
 
 # Big endian
-#:
+#: FDM v25 structure
 fdm_struct = {
     'version': Const(25, Int32ub),
     '_padding': Padding(4),
