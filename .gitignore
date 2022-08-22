@@ -1,5 +1,6 @@
 dist/
 *.egg-info/
 .*venv*/
+.pytest_cache/
 docs/build/
 docs/source/_autosummary/

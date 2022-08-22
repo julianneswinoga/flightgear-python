@@ -1,28 +1,21 @@
-[build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
-
-[project]
+[tool.poetry]
 name = "flightgear_python"
-authors = [{name = "Julianne Swinoga", email = "julianneswinoga@gmail.com"}]
+version = "1.0.0"
+description = "Interface for FlightGear network connections"
+authors = ["Julianne Swinoga <julianneswinoga@gmail.com>"]
 readme = "README.md"
-license = {file = "LICENSE"}
-classifiers = ["License :: OSI Approved :: MIT License"]
-dynamic = ["version", "description"]
-requires-python = ">=3.6"
-dependencies = [
-    "construct>=2.10",
-]
+license = "MIT"
 
-[project.optional-dependencies]
-test = [
-]
-doc = [
-    "sphinx>=5.1.1",
-    "sphinx-rtd-theme>=1.0.0",
-]
+[tool.poetry.dependencies]
+python = "^3.6"
+construct = ">=2.10"
 
-[project.urls]
-Home = "https://github.com/julianneswinoga/flightgear-python"
-Documentation = "https://flightgear-python.readthedocs.io/en/latest"
-Bug-Tracker = "https://github.com/julianneswinoga/flightgear-python/issues"
+[tool.poetry.dev-dependencies]
+sphinx = ">=5.1.1"
+sphinx-rtd-theme = ">=1.0.0"
+
+[tool.poetry.urls]
+"homepage" = "https://github.com/julianneswinoga/flightgear-python"
+"repository" = "https://github.com/julianneswinoga/flightgear-python"
+"documentation" = "https://flightgear-python.readthedocs.io/en/latest"
+"Bug Tracker" = "https://github.com/julianneswinoga/flightgear-python/issues"
