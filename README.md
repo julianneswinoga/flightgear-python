@@ -1,5 +1,6 @@
 # FlightGear Python Interface
 [![Documentation Status](https://readthedocs.org/projects/flightgear-python/badge/?version=latest)](https://flightgear-python.readthedocs.io/en/latest/?badge=latest)
+[![CircleCI](https://circleci.com/gh/julianneswinoga/flightgear-python.svg?style=shield&circle-token=e30761f62c22b8e98e3f74889a331ddc50d7f29a)](https://circleci.com/gh/julianneswinoga/flightgear-python)
 
 `flightgear-python` is an interface package to the [FlightGear flight simulation software](https://www.flightgear.org/) aimed at simplicity.
 

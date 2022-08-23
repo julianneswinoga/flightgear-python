@@ -1,0 +1,24 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@2.0.3
+
+#jobs:
+#  build-and-test:
+#    executor: python/default
+#    steps:
+#      - checkout
+#      - python/install-packages:
+#          pkg-manager: poetry
+#      - run:
+#          command: |
+#            poetry run pytest --version
+#          name: Test it
+
+workflows:
+  main:
+    jobs:
+      - python/test:
+          pkg-manager: poetry
+          test-tool: pytest
+          version: "3.6"
