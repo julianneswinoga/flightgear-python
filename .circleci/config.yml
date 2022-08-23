@@ -3,22 +3,37 @@ version: 2.1
 orbs:
   python: circleci/python@2.0.3
 
-#jobs:
-#  build-and-test:
-#    executor: python/default
-#    steps:
-#      - checkout
-#      - python/install-packages:
-#          pkg-manager: poetry
-#      - run:
-#          command: |
-#            poetry run pytest --version
-#          name: Test it
+jobs:
+  build-and-test:
+    executor:
+      name: python/default
+      tag: "3.6"
+    steps:
+      - checkout
+      - run:
+          name: Poetry build
+          command: poetry build --no-ansi
+      - run:
+          name: Poetry install
+          command: poetry install --no-ansi
+      - run:
+          name: Install coverage
+          command: pip install -U coverage
+      - run:
+          name: Run pytest
+          command: poetry run coverage run -m pytest tests/
+      - run:
+          name: Coverage report
+          command: coverage report
+      - run:
+          name: Coverage xml
+          command: coverage xml -o xmlcov/pytest/coverage.xml
+      - store_test_results:
+          path: xmlcov
+      - store_artifacts:
+          path: xmlcov
 
 workflows:
   main:
     jobs:
-      - python/test:
-          pkg-manager: poetry
-          test-tool: pytest
-          version: "3.6"
+      - build-and-test
