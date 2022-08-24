@@ -30,7 +30,7 @@ class FGConnection:
     """
     fg_net_struct: Optional[Struct] = None
 
-    def __init__(self):
+    def __init__(self, rx_timeout_s: float = 2.0):
         self.event_pipe = EventPipe(duplex=False)
 
         self.fg_rx_sock: Optional[socket.socket] = None
@@ -40,6 +40,7 @@ class FGConnection:
         self.fg_tx_addr: Optional[Tuple[str, int]] = None
 
         self.rx_proc: Optional[mp.Process] = None
+        self.rx_timeout_s = rx_timeout_s
 
     def connect_rx(self, fg_host: str, fg_port: int, rx_cb: rx_callback_type) -> EventPipe:
         """
@@ -76,10 +77,15 @@ class FGConnection:
         self.fg_tx_addr = (fg_host, fg_port)
 
     def _rx_process(self):
+        self.fg_rx_sock.settimeout(self.rx_timeout_s)
         while True:
             # Receive up to 1KB of data from FG
             # blocking is fine here since we're in a separate process
-            rx_msg, _ = self.fg_rx_sock.recvfrom(1024)
+
+            try:
+                rx_msg, _ = self.fg_rx_sock.recvfrom(1024)
+            except socket.timeout as e:
+                raise FGConnectionError(f'Timeout waiting for data, waited {self.rx_timeout_s} seconds') from e
             try:
                 s = self.fg_net_struct.parse(rx_msg)
             except ConstError as e:
@@ -137,11 +143,12 @@ class FDMConnection(FGConnection):
 
 
 class PropsConnection:
-    def __init__(self, host: str, tcp_port: int):
+    def __init__(self, host: str, tcp_port: int, rx_timeout_s: float = 2.0):
         self.host = host
         self.port = tcp_port
         # SOCK_STREAM == TCP
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.rx_timeout_s = rx_timeout_s
 
     def connect(self):
         telnet_addr = (self.host, self.port)
@@ -158,13 +165,18 @@ class PropsConnection:
 
     def _send_cmd_get_resp(self, cmd_str: str, buflen: int = 512):
         self.sock.sendall(self._telnet_str(cmd_str))
+
+        self.sock.settimeout(self.rx_timeout_s)
         # FG telnet always ends with a prompt (`cwd`> ), and since we always
         # operate relative to the root directory, it should always be the same prompt
         ending_bytes = b'/> '
         resp_bytes = b''
         while not resp_bytes.endswith(ending_bytes):
             # Loop until FG sends us all the data
-            resp_bytes += self.sock.recv(buflen)
+            try:
+                resp_bytes += self.sock.recv(buflen)
+            except socket.timeout as e:
+                raise FGConnectionError(f'Timeout waiting for data, waited {self.rx_timeout_s} seconds') from e
         resp_bytes = strip_end(resp_bytes, b'\r\n' + ending_bytes)  # trim the prompt
 
         resp_str = resp_bytes.decode()
