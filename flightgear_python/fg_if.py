@@ -6,7 +6,7 @@ import socket
 import sys
 import re
 import multiprocessing as mp
-from typing import Callable, Optional, Tuple, Any, Dict, Union
+from typing import Callable, Optional, Tuple, Any, Dict, Union, ByteString
 
 from construct import ConstError, Struct
 
@@ -173,10 +173,10 @@ class PropsConnection:
         _ = self._send_cmd_get_resp('cd /')
 
     @staticmethod
-    def _telnet_str(in_str: str):
+    def _telnet_str(in_str: str) -> ByteString:
         return f'{in_str}\r\n'.encode()
 
-    def _send_cmd_get_resp(self, cmd_str: str, buflen: int = 512):
+    def _send_cmd_get_resp(self, cmd_str: str, buflen: int = 512) -> str:
         self.sock.sendall(self._telnet_str(cmd_str))
 
         self.sock.settimeout(self.rx_timeout_s)
@@ -198,7 +198,7 @@ class PropsConnection:
         return resp_str
 
     @staticmethod
-    def _extract_fg_prop(resp_str: str):
+    def _extract_fg_prop(resp_str: str) -> Tuple[str, Any]:
         try:
             match = re.search(r"^(.+)\s=\s+'(.*)'\s+\((.+)\)$", resp_str, flags=re.DOTALL)
         except Exception as e:
@@ -220,7 +220,7 @@ class PropsConnection:
             raise FGCommunicationError(f'Could not auto-convert "{resp_str}": {e}') from e
         return key_str, value
 
-    def get_prop(self, prop_str: str):
+    def get_prop(self, prop_str: str) -> Any:
         """
         Get a property from FlightGear.
 

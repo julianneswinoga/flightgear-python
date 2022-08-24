@@ -55,7 +55,7 @@ class EventPipe:
         return msg
 
 
-def strip_end(text: Union[str, ByteString], suffix: Union[str, ByteString]):
+def strip_end(text: Union[str, ByteString], suffix: Union[str, ByteString]) -> Union[str, ByteString]:
     """
     This could be removed if we want to move lowest supported version to 3.9 (.removesuffix())
     sphinx-no-autodoc
