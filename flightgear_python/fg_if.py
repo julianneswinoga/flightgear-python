@@ -1,14 +1,23 @@
 """
 Main FlightGear interface module
 """
-
+import copy
 import math
 import socket
 import sys
+import re
 import multiprocessing as mp
-from typing import Callable, Optional, Tuple, Any
+from typing import Callable, Optional, Tuple, Any, Union, ByteString
 
 from construct import ConstError, Struct
+
+
+class FGConnectionError(Exception):
+    pass
+
+
+class FGCommunicationError(Exception):
+    pass
 
 
 class EventPipe:
@@ -19,6 +28,7 @@ class EventPipe:
     :param duplex: Allow internal pipe to also pass data from child to \
     parent. Recommended to leave at default
     """
+
     def __init__(self, duplex=False):
         self.event = mp.Event()
         # TODO: Any value in duplex?
@@ -137,7 +147,10 @@ class FGConnection:
         # TODO: Support TCP server so that we only need 1 port
         self.fg_rx_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         fg_rx_addr = (fg_host, fg_port)
-        self.fg_rx_sock.bind(fg_rx_addr)
+        try:
+            self.fg_rx_sock.bind(fg_rx_addr)
+        except Exception as e:
+            raise FGConnectionError(f'Could not bind to {fg_rx_addr}: {e}')
         self.fg_rx_cb = rx_cb
 
         return self.event_pipe
@@ -161,7 +174,7 @@ class FGConnection:
             try:
                 s = self.fg_net_struct.parse(rx_msg)
             except ConstError as e:
-                raise AssertionError(f'Could not decode FG stream. Is this the right FDM version?\n{e}')
+                raise FGCommunicationError(f'Could not decode FG stream. Is this the right FDM version?\n{e}')
 
             # Fix FG's radian parsing error :(
             s = fix_fg_radian_parsing(s)
@@ -211,3 +224,117 @@ class FDMConnection(FGConnection):
             raise NotImplementedError(f'FDM version {fdm_version} not supported yet')
         # Create Struct from Dict
         self.fg_net_struct = Struct(*[k / v for k, v in fdm_struct.items()])
+
+
+def strip_end(text: Union[str, ByteString], suffix: Union[str, ByteString]):
+    if suffix and text.endswith(suffix):
+        return text[:-len(suffix)]
+    return text
+
+
+class PropsConnection:
+    def __init__(self, host: str, tcp_port: int):
+        self.host = host
+        self.port = tcp_port
+        # SOCK_STREAM == TCP
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    def connect(self):
+        telnet_addr = (self.host, self.port)
+        try:
+            self.sock.connect(telnet_addr)
+        except Exception as e:
+            raise FGConnectionError(f'Could not connect to FlightGear telnet server {telnet_addr}: {e}')
+        # force move to the root directory (maybe someone was connected before we were)
+        _ = self._send_cmd_get_resp('cd /')
+
+    @staticmethod
+    def _telnet_str(in_str: str):
+        return f'{in_str}\r\n'.encode()
+
+    def _send_cmd_get_resp(self, cmd_str: str, buflen: int = 512):
+        self.sock.sendall(self._telnet_str(cmd_str))
+        # FG telnet always ends with a prompt (`cwd`> ), and since we always
+        # operate relative to the root directory, it should always be the same prompt
+        ending_bytes = b'/> '
+        resp_bytes = b''
+        while not resp_bytes.endswith(ending_bytes):
+            # Loop until FG sends us all the data
+            resp_bytes += self.sock.recv(buflen)
+        resp_bytes = strip_end(resp_bytes, b'\r\n' + ending_bytes)  # trim the prompt
+
+        resp_str = resp_bytes.decode()
+        if resp_str.startswith('-ERR'):
+            raise FGCommunicationError(f'Bad telnet command "{cmd_str}". Response: "{resp_str}"')
+        return resp_str
+
+    @staticmethod
+    def _extract_fg_prop(resp_str: str):
+        try:
+            match = re.search(r"^(.+)\s=\s+'(.*)'\s+\((.+)\)$", resp_str, flags=re.DOTALL)
+        except Exception as e:
+            raise FGCommunicationError(f'Could not parse FG telnet response for msg "{resp_str}": {e}')
+        if match is None:
+            raise FGCommunicationError(f'Could not parse FG telnet response for msg "{resp_str}"')
+        key_str = match.group(1)
+        value_str = match.group(2)
+        type_str = match.group(3)
+        convert_fn = {
+            'bool': bool,
+            'int': int,
+            'string': str,
+            'double': float,
+        }.get(type_str, lambda x: x)
+        try:
+            value = convert_fn(value_str)
+        except ValueError as e:
+            raise FGCommunicationError(f'Could not auto-convert "{resp_str}": {e}')
+        return key_str, value
+
+    def get_prop(self, prop_str: str):
+        if not isinstance(prop_str, str):
+            raise ValueError(f'prop_str must be a string, not {type(prop_str)}')
+        resp_str = self._send_cmd_get_resp(f'get {prop_str}')
+        _, value = self._extract_fg_prop(resp_str)
+        return value
+
+    def set_prop(self, prop_str: str, value: Any):
+        _ = self._send_cmd_get_resp(f'set {prop_str} {str(value)}')
+        # We don't care about the response
+
+    def list_props(self, path: str = '/', recurse_limit: Optional[int] = 1):
+        path = path.rstrip('/')  # Strip trailing slash to keep things consistent
+
+        resp_list = self._send_cmd_get_resp(f'ls {path}').split('\r\n')
+        # List of directories, absolute path
+        dir_list = [f'{path}/{s.rstrip("/")}' for s in resp_list if s.endswith('/')]
+
+        prop_dict = {}
+        # recursion support
+        if recurse_limit is None or recurse_limit > 1:
+            dir_list_cwd = copy.deepcopy(dir_list)
+            for dir_str in dir_list_cwd:
+                # Handle None as a recursion limit
+                if recurse_limit is None:
+                    new_recurse_limit = None
+                else:
+                    new_recurse_limit = recurse_limit - 1
+                # recursion!
+                dir_dict = self.list_props(dir_str, recurse_limit=new_recurse_limit)
+                prop_dict = {**prop_dict, **dir_dict['properties']}
+                dir_list.remove(dir_str)  # Remove the non-recursed directory
+                dir_list += dir_dict['directories']  # add all the newly found directories
+
+        for s in resp_list:
+            if '=' in s:
+                key, val = self._extract_fg_prop(s)
+                # prepend the key with the working directory, keep naming consistent
+                prop_dict[f'{path}/{key}'] = val
+
+        # Returned paths are absolute
+        rtn_dict = {
+            # sort the list because we're nice
+            'directories': dir_list,
+            'properties': prop_dict,
+        }
+        return rtn_dict
