@@ -10,7 +10,7 @@ Don't know where to begin? Check out the [quick-start](https://flightgear-python
 FDM example, from `examples/simple_fdm.py`
 ```python
 """
-Simple example that makes the altitude increase and the plane roll in the air.
+Simple Flight Dynamics Model (FDM) example that makes the altitude increase and the plane roll in the air.
 """
 import time
 from flightgear_python.fg_if import FDMConnection
