@@ -7,7 +7,7 @@
 
 Don't know where to begin? Check out the [quick-start](https://flightgear-python.readthedocs.io/en/latest/quickstart.html) documentation.
 
-simple example, from `examples/simple.py`
+FDM example, from `examples/simple_fdm.py`
 ```python
 """
 Simple example that makes the altitude increase and the plane roll in the air.

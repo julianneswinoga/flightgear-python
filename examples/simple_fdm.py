@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-Simple example that makes the altitude increase and the plane roll in the air.
+Simple Flight Dynamics Model (FDM) example that makes the altitude increase and the plane roll in the air.
 """
 import time
 from flightgear_python.fg_if import FDMConnection
