@@ -18,20 +18,13 @@ jobs:
           command: poetry install --no-ansi
       - run:
           name: Install coverage
-          command: pip install -U coverage
+          command: pip install -U coverage coveralls
       - run:
           name: Run pytest
           command: poetry run coverage run -m pytest tests/
       - run:
-          name: Coverage report
-          command: coverage report
-      - run:
-          name: Coverage xml
-          command: coverage xml -o xmlcov/pytest/coverage.xml
-      - store_test_results:
-          path: xmlcov
-      - store_artifacts:
-          path: xmlcov
+          name: Coveralls
+          command: coveralls
 
 workflows:
   main:
