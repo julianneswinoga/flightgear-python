@@ -11,7 +11,7 @@ Start FlightGear with `--telnet=socket,bi,60,localhost,5500,tcp`
 """
 props_conn = PropsConnection('localhost', 5500)
 props_conn.connect()  # Make an actual connection
-pprint(props_conn.list_props('/', recurse_limit=1))  # List the top-level properties, no recursion
+pprint(props_conn.list_props('/', recurse_limit=0))  # List the top-level properties, no recursion
 while True:
     alt_ft = props_conn.get_prop('/position/altitude-ft')
     print(f'Altitude: {alt_ft:.1f}ft')
