@@ -19,6 +19,8 @@ pytest-cov = "^3.0.0"
 pytest = "==7.0.1"
 sphinx = ">=5.1.1"
 sphinx-rtd-theme = ">=1.0.0"
+sh = "^1.14.3"
+GitPython = "3.1.20"
 
 [tool.poetry.urls]
 "homepage" = "https://github.com/julianneswinoga/flightgear-python"
