@@ -3,19 +3,22 @@ version: 2.1
 orbs:
   python: circleci/python@2.0.3
 
+executor-defaults: &executor-defaults
+  executor:
+    name: python/default
+    tag: "3.6"
+
 jobs:
-  build-and-test:
-    executor:
-      name: python/default
-      tag: "3.6"
+  build_install_test:
+    <<: *executor-defaults
     steps:
       - checkout
       - run:
           name: Poetry build
-          command: poetry build --no-ansi
+          command: poetry build --no-ansi --no-interaction
       - run:
           name: Poetry install
-          command: poetry install --no-ansi
+          command: poetry install --no-ansi --no-interaction
       - run:
           name: Install coverage
           command: pip install -U coverage coveralls
@@ -25,8 +28,29 @@ jobs:
       - run:
           name: Coveralls
           command: coveralls
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist
+  poetry_publish:
+    <<: *executor-defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Poetry publish
+          command: poetry -vv publish --no-ansi --no-interaction --dry-run
 
 workflows:
-  main:
+  main-workflow:
     jobs:
-      - build-and-test
+      - build_install_test
+      - poetry_publish:
+          requires:
+            - build_install_test
+          filters:
+            tags:
+              only: /^\d+\.\d+\.\d+$/
+            branches:
+              ignore: /.*/
