@@ -23,7 +23,6 @@ sh = "^1.14.3"
 GitPython = "3.1.20"
 
 [tool.poetry.urls]
-"homepage" = "https://github.com/julianneswinoga/flightgear-python"
-"repository" = "https://github.com/julianneswinoga/flightgear-python"
-"documentation" = "https://flightgear-python.readthedocs.io/en/latest"
+"Repository" = "https://github.com/julianneswinoga/flightgear-python"
+"Documentation" = "https://flightgear-python.readthedocs.io/en/latest"
 "Bug Tracker" = "https://github.com/julianneswinoga/flightgear-python/issues"
