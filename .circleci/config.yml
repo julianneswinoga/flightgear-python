@@ -57,11 +57,7 @@ jobs:
           name: Publish GitHub release
           command: |
             VERSION=$(echo ./dist/*.whl | cut -d- -f2)
-            ghr -t ${GITHUB_PAT}\
-            -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME}\
-            -c ${CIRCLE_SHA1}\
-            -p1 -b "Automatic release ${VERSION}"\
-            ${VERSION} ./dist
+            ghr -t ${GITHUB_PAT} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -p1 -b "Automatic release ${VERSION}" ${VERSION} ./dist
 
 tag-filter: &tag-filter
   filters:
