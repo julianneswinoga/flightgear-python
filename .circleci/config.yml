@@ -45,11 +45,30 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Poetry config
-          command: poetry config --no-ansi --no-interaction repositories.testpypi https://test.pypi.org/legacy/
-      - run:
           name: Poetry publish
-          command: poetry publish -vv --no-ansi --no-interaction --username __token__ --password ${FLIGHTGEAR_PYPI_TOKEN} --repository testpypi
+          command: poetry publish -vv --no-ansi --no-interaction --username __token__ --password ${FLIGHTGEAR_PYPI_TOKEN}
+  github_publish:
+    docker:
+      - image: cibuilds/github:0.13.0
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Publish GitHub release
+          command: |
+            VERSION=$(echo ./dist/*.whl | cut -d- -f2)
+            ghr -t ${GITHUB_PAT}\
+            -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME}\
+            -c ${CIRCLE_SHA1}\
+            -p1 -b "Automatic release ${VERSION}"\
+            ${VERSION} ./dist
+
+tag-filter: &tag-filter
+  filters:
+    tags:
+      only: /^\d+\.\d+\.\d+$/
+    branches:
+      ignore: /.*/
 
 workflows:
   main-workflow:
@@ -64,8 +83,8 @@ workflows:
       - poetry_publish:
           requires:
             - build_install_test
-          filters:
-            tags:
-              only: /^\d+\.\d+\.\d+$/
-            branches:
-              ignore: /.*/
+          <<: *tag-filter
+      - github_publish:
+          requires:
+            - build_install_test
+          <<: *tag-filter
