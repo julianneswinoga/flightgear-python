@@ -3,14 +3,14 @@ version: 2.1
 orbs:
   python: circleci/python@2.0.3
 
-executor-defaults: &executor-defaults
-  executor:
-    name: python/default
-    tag: "3.6"
-
 jobs:
   build_install_test:
-    <<: *executor-defaults
+    parameters:
+      python-version:
+        type: string
+    executor:
+      name: python/default
+      tag: << parameters.python-version >>
     steps:
       - checkout
       - run:
@@ -28,12 +28,18 @@ jobs:
       - run:
           name: Coveralls
           command: coveralls
-      - persist_to_workspace:
-          root: .
-          paths:
-            - dist
+      - when:
+          condition:
+            equal: [ "3.6", << parameters.python-version >> ]
+          steps:
+            - persist_to_workspace:
+                root: .
+                paths:
+                  - dist
   poetry_publish:
-    <<: *executor-defaults
+    executor:
+      name: python/default
+      tag: "3.6"
     steps:
       - checkout
       - attach_workspace:
@@ -49,6 +55,9 @@ workflows:
   main-workflow:
     jobs:
       - build_install_test:
+          matrix:
+            parameters:
+              python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
           filters:  # required since `deploy` has tag filters AND requires `build`
             tags:
               only: /.*/
