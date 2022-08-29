@@ -39,13 +39,19 @@ jobs:
       - attach_workspace:
           at: .
       - run:
+          name: Poetry config
+          command: poetry config --no-ansi --no-interaction repositories.testpypi https://test.pypi.org/legacy/
+      - run:
           name: Poetry publish
-          command: poetry -vv publish --no-ansi --no-interaction --dry-run
+          command: poetry publish -vv --no-ansi --no-interaction --username __token__ --password ${FLIGHTGEAR_PYPI_TOKEN} --repository testpypi
 
 workflows:
   main-workflow:
     jobs:
-      - build_install_test
+      - build_install_test:
+          filters:  # required since `deploy` has tag filters AND requires `build`
+            tags:
+              only: /.*/
       - poetry_publish:
           requires:
             - build_install_test
