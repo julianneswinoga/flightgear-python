@@ -223,7 +223,7 @@ def main():
         clean_exit(0)
 
     print_action_history('\r\nRan the following actions:')
-    print(f'\r\nYou should now run `git push origin master && git push origin {poetry_version_str}`')
+    print(f'\r\nYou should now run `git push origin master && git push origin $(git describe)`')
 
 
 if __name__ == '__main__':
