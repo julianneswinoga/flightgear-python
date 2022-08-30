@@ -1,14 +1,54 @@
-from flightgear_python.fdm_v24 import fdm_struct as fdm24_struct
-from flightgear_python.fdm_v25 import fdm_struct as fdm25_struct
+from flightgear_python.fg_if import FDMConnection
 
-from construct import Struct
+import pytest
 
-
-def test_v24_length():
-    s = Struct(**fdm24_struct)
-    assert s.sizeof() == 408
+supported_fdm_versions = [24, 25, ]
 
 
-def test_v25_length():
-    s = Struct(**fdm25_struct)
-    assert s.sizeof() == 552
+@pytest.mark.parametrize('fdm_version', supported_fdm_versions)
+def test_fdm_length(mocker, fdm_version):
+    fdm_length = {
+        24: 408,
+        25: 552,
+    }.get(fdm_version, None)
+    if fdm_length is None:
+        raise NotImplementedError(f'FDM version {fdm_version} length not tested')
+    assert FDMConnection(fdm_version).fg_net_struct.sizeof() == fdm_length
+
+
+def setup_fdm_mock(mocker, version: int, struct_length: int):
+    # this is mocking what flightgear will send
+    def mock_socket_recvfrom(self, buflen):
+        # big endian
+        data = bytes([0, 0, 0, version])
+        while len(data) < struct_length:
+            data += b'\0'
+        ret_addr = ('localhost', 12345)
+        return data, ret_addr
+
+    # this is mocking what flightgear will receive
+    def mock_socket_sendto(self, tx_bytes, addr):
+        assert tx_bytes[0:4] == bytes([0, 0, 0, version])
+
+    def mock_socket_bind(self, addr):
+        pass
+
+    mocker.patch('socket.socket.recvfrom', mock_socket_recvfrom)
+    mocker.patch('socket.socket.sendto', mock_socket_sendto)
+    mocker.patch('socket.socket.bind', mock_socket_bind)
+
+
+@pytest.mark.parametrize('fdm_version', supported_fdm_versions)
+def test_fdm_happypath(mocker, fdm_version):
+    rx_cb = lambda s, e_p: print('rx_cb called') or s
+
+    fdm_c = FDMConnection(fdm_version)
+
+    setup_fdm_mock(mocker, fdm_version, fdm_c.fg_net_struct.sizeof())
+
+    fdm_c.connect_rx('localhost', 55550, rx_cb)
+    fdm_c.connect_tx('localhost', 55551)
+
+    for i in range(500):
+        # manually call the process instead of having the process spawn
+        fdm_c._fg_packet_roundtrip()
