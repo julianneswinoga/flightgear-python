@@ -10,6 +10,7 @@ Don't know where to begin? Check out the :ref:`Quick-Start` page.
     Welcome <self>
     quickstart
     examples
+    changelog_link
 
 API
 ---

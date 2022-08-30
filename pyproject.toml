@@ -16,6 +16,7 @@ construct = "^2.10"
 
 [tool.poetry.dev-dependencies]
 sphinx = "^5.1.1"
+sphinx_mdinclude = "^0.5.2"
 sphinx-rtd-theme = "^1.0.0"
 sh = "^1.14.3"
 pytest-cov = "^3.0.0"
