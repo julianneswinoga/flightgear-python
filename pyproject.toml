@@ -12,15 +12,16 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.6"
-construct = ">=2.10"
-pytest-cov = "^3.0.0"
+construct = "^2.10"
 
 [tool.poetry.dev-dependencies]
-pytest = "==7.0.1"
-sphinx = ">=5.1.1"
-sphinx-rtd-theme = ">=1.0.0"
+sphinx = "^5.1.1"
+sphinx-rtd-theme = "^1.0.0"
 sh = "^1.14.3"
-GitPython = "3.1.20"
+pytest-cov = "^3.0.0"
+# Following are pegged at the latest version that supports Python 3.6
+pytest = "==7.0.1"
+GitPython = "==3.1.20"
 
 [tool.poetry.urls]
 "Repository" = "https://github.com/julianneswinoga/flightgear-python"
