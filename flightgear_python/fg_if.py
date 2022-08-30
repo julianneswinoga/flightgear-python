@@ -76,37 +76,40 @@ class FGConnection:
         self.fg_tx_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.fg_tx_addr = (fg_host, fg_port)
 
+    def _fg_packet_roundtrip(self):
+        # Receive up to 1KB of data from FG
+        # blocking is fine here since we're in a separate process
+
+        try:
+            rx_msg, _ = self.fg_rx_sock.recvfrom(1024)
+        except socket.timeout as e:
+            raise FGConnectionError(f'Timeout waiting for data, waited {self.rx_timeout_s} seconds') from e
+        try:
+            s = self.fg_net_struct.parse(rx_msg)
+        except ConstError as e:
+            raise FGCommunicationError(f'Could not decode FG stream. Is this the right FDM version?\n{e}') from e
+
+        # Fix FG's radian parsing error :(
+        s = fix_fg_radian_parsing(s)
+
+        # Call user method
+        if self.event_pipe.is_set() and self.event_pipe.child_poll():
+            # only update when we have data to send
+            s = self.fg_rx_cb(s, self.event_pipe)
+        else:
+            print('Receiving FG updates but no data to send', flush=True)
+        sys.stdout.flush()
+        tx_msg = self.fg_net_struct.build(dict(**s))
+        # Send data back to FG
+        if self.fg_tx_sock is not None:
+            self.fg_tx_sock.sendto(tx_msg, self.fg_tx_addr)
+        else:
+            print(f'Warning: TX not connected, not sending updates to FG for RX {self.fg_rx_sock.getsockname()}')
+
     def _rx_process(self):
         self.fg_rx_sock.settimeout(self.rx_timeout_s)
         while True:
-            # Receive up to 1KB of data from FG
-            # blocking is fine here since we're in a separate process
-
-            try:
-                rx_msg, _ = self.fg_rx_sock.recvfrom(1024)
-            except socket.timeout as e:
-                raise FGConnectionError(f'Timeout waiting for data, waited {self.rx_timeout_s} seconds') from e
-            try:
-                s = self.fg_net_struct.parse(rx_msg)
-            except ConstError as e:
-                raise FGCommunicationError(f'Could not decode FG stream. Is this the right FDM version?\n{e}') from e
-
-            # Fix FG's radian parsing error :(
-            s = fix_fg_radian_parsing(s)
-
-            # Call user method
-            if self.event_pipe.is_set() and self.event_pipe.child_poll():
-                # only update when we have data to send
-                s = self.fg_rx_cb(s, self.event_pipe)
-            else:
-                print('Receiving FG updates but no data to send', flush=True)
-            sys.stdout.flush()
-            tx_msg = self.fg_net_struct.build(dict(**s))
-            # Send data back to FG
-            if self.fg_tx_sock is not None:
-                self.fg_tx_sock.sendto(tx_msg, self.fg_tx_addr)
-            else:
-                print(f'Warning: TX not connected, not sending updates to FG for RX {self.fg_rx_sock.getsockname()}')
+            self._fg_packet_roundtrip()
 
     def start(self):
         """

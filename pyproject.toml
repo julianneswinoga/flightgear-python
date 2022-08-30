@@ -23,6 +23,7 @@ pytest-cov = "^3.0.0"
 # Following are pegged at the latest version that supports Python 3.6
 pytest = "==7.0.1"
 GitPython = "==3.1.20"
+pytest-mock = "==3.6.1"
 
 [tool.poetry.urls]
 "Repository" = "https://github.com/julianneswinoga/flightgear-python"
