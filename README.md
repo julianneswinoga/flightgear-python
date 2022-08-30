@@ -2,9 +2,11 @@
 [![Documentation Status](https://readthedocs.org/projects/flightgear-python/badge/?version=latest)](https://flightgear-python.readthedocs.io/en/latest/?badge=latest)
 [![CircleCI](https://circleci.com/gh/julianneswinoga/flightgear-python.svg?style=shield)](https://circleci.com/gh/julianneswinoga/flightgear-python)
 [![Coverage Status](https://coveralls.io/repos/github/julianneswinoga/flightgear-python/badge.svg?branch=master)](https://coveralls.io/github/julianneswinoga/flightgear-python?branch=master)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/flightgear_python)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/flightgear_python)](https://pypi.org/project/flightgear-python/)
 
 `flightgear-python` is an interface package to the [FlightGear flight simulation software](https://www.flightgear.org/) aimed at simplicity.
+
+Install: `pip3 install flightgear-python`
 
 Don't know where to begin? Check out the [quick-start](https://flightgear-python.readthedocs.io/en/latest/quickstart.html) documentation.
 
@@ -40,3 +42,12 @@ while True:
     fdm_event_pipe.parent_send((phi_rad_parent,))  # send tuple
     time.sleep(0.01)
 ```
+
+Supported interfaces:
+- [x] [Native Protocol](https://wiki.flightgear.org/Property_Tree/Sockets) (currently only UDP)
+  - [x] Flight Dynamics Model ([`net_fdm.hxx`](https://github.com/FlightGear/flightgear/blob/next/src/Network/net_fdm.hxx))
+  - [ ] Controls ([`net_ctrls.hxx`](https://github.com/FlightGear/flightgear/blob/next/src/Network/net_ctrls.hxx))
+  - [ ] GUI ([`net_gui.hxx`](https://github.com/FlightGear/flightgear/blob/next/src/Network/net_gui.hxx))
+- [ ] [Generic Protocol](https://wiki.flightgear.org/Generic_protocol)
+- [x] [Telnet](https://wiki.flightgear.org/Telnet_usage)
+- [ ] [HTTP](https://wiki.flightgear.org/Property_Tree_Servers)
