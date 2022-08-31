@@ -14,6 +14,18 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Poetry show version 1
+          command: poetry --version
+      - run:
+          name: Update pip
+          command: pip3 install --upgrade pip
+      - run:
+          name: Poetry update
+          command: pip3 install --upgrade poetry
+      - run:
+          name: Poetry show version 2
+          command: poetry --version
+      - run:
           name: Poetry build
           command: poetry build --no-ansi --no-interaction
       - run:
@@ -32,6 +44,8 @@ jobs:
           condition:
             equal: [ "3.6", << parameters.python-version >> ]
           steps:
+            - store_artifacts:
+                path: dist
             - persist_to_workspace:
                 root: .
                 paths:
