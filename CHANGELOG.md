@@ -1,3 +1,10 @@
+#### [1.0.4](https://github.com/julianneswinoga/flightgear-python/compare/1.0.3...1.0.4)
+
+> 31 August 2022
+
+- Update pip/poetry when publishing [`498026a`](https://github.com/julianneswinoga/flightgear-python/commit/498026a180577dd6aef09b2ab195415ad2242a00)
+- readthedocs poetry 1.1.15 [`9af4947`](https://github.com/julianneswinoga/flightgear-python/commit/9af4947943691c43aa8930d04df2989ba4c4784b)
+
 #### [1.0.3](https://github.com/julianneswinoga/flightgear-python/compare/1.0.2...1.0.3)
 
 > 31 August 2022
