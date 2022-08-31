@@ -3,6 +3,13 @@ version: 2.1
 orbs:
   python: circleci/python@2.0.3
 
+update-pip-poetry: &update-pip-poetry |-
+  poetry --version
+  pip3 install --upgrade pip
+  # 3.6 support was dropped in 1.2.0
+  pip3 install --upgrade poetry==1.1.15
+  # Don't put more poetry commands here, they'll use the old version for some reason
+
 jobs:
   build_install_test:
     parameters:
@@ -14,16 +21,10 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Poetry show version 1
-          command: poetry --version
+          name: Update Pip and Poetry
+          command: *update-pip-poetry
       - run:
-          name: Update pip
-          command: pip3 install --upgrade pip
-      - run:
-          name: Poetry update
-          command: pip3 install --upgrade poetry
-      - run:
-          name: Poetry show version 2
+          name: Poetry show version
           command: poetry --version
       - run:
           name: Poetry build
@@ -56,6 +57,12 @@ jobs:
       tag: "3.6"
     steps:
       - checkout
+      - run:
+          name: Update Pip and Poetry
+          command: *update-pip-poetry
+      - run:
+          name: Poetry show version
+          command: poetry --version
       - attach_workspace:
           at: .
       - run:
