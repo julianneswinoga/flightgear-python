@@ -9,8 +9,8 @@ build:
   jobs:
     pre_create_environment:
       - asdf plugin add poetry
-      - asdf install poetry latest
-      - asdf global poetry latest
+      - asdf install poetry 1.1.15
+      - asdf global poetry 1.1.15
       - poetry config virtualenvs.create false
     post_install:
       - poetry install --no-ansi --no-interaction
