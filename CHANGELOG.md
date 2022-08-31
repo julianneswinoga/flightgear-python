@@ -1,3 +1,13 @@
+#### [1.0.3](https://github.com/julianneswinoga/flightgear-python/compare/1.0.2...1.0.3)
+
+> 31 August 2022
+
+- Add more fdm unit tests [`d195247`](https://github.com/julianneswinoga/flightgear-python/commit/d19524757e6bbc943e0f1b9b69464fb8207e39cf)
+- Add initial props unit tests [`fb133a6`](https://github.com/julianneswinoga/flightgear-python/commit/fb133a606b2fc478afa885ee51fe090a7536d920)
+- CircleCI: update poetry version, store artifacts [`8a71fb2`](https://github.com/julianneswinoga/flightgear-python/commit/8a71fb29acf1b37140e9c9e759b4a21071aca0d0)
+- Fix readthedocs.io config [`dda5410`](https://github.com/julianneswinoga/flightgear-python/commit/dda5410bf8269ea7c8ea209f6b282a83b43c4480)
+- Minor do_release.py fix [`b0ed48b`](https://github.com/julianneswinoga/flightgear-python/commit/b0ed48b83cf945c41bf6cf45ff8619e253c50a2f)
+
 #### [1.0.2](https://github.com/julianneswinoga/flightgear-python/compare/1.0.1...1.0.2)
 
 > 30 August 2022
