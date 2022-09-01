@@ -4,7 +4,6 @@ from flightgear_python.fg_if import PropsConnection
 def setup_props_mock(mocker, cmd_str):
     # this is mocking what flightgear will send
     def mock_socket_recv(buflen):
-        print('CALL')
         if socket_recv_magic_mock.call_count < 5:
             data = ('A' * buflen).encode()
         else:

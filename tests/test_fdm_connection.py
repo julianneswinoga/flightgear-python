@@ -40,7 +40,7 @@ def setup_fdm_mock(mocker, version: int, struct_length: int):
 
 @pytest.mark.parametrize('fdm_version', supported_fdm_versions)
 def test_fdm_happypath(mocker, fdm_version):
-    rx_cb = lambda s, e_p: print('rx_cb called') or s
+    rx_cb = lambda s, e_p: s
 
     fdm_c = FDMConnection(fdm_version)
 
