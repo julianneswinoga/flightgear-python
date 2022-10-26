@@ -2,6 +2,8 @@ dist/
 *.egg-info/
 .*venv*/
 .pytest_cache/
+__pycache__/
+.idea/
 docs/build/
 docs/source/_autosummary/
 .coverage
