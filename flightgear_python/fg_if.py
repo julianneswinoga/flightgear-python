@@ -13,13 +13,13 @@ from construct import ConstError, Struct
 from .general_util import EventPipe, strip_end
 from .fg_util import FGConnectionError, FGCommunicationError, fix_fg_radian_parsing
 
-rx_callback_type = Callable[[Struct, EventPipe], Struct]
+rx_callback_type = Callable[[Struct, EventPipe], Optional[Struct]]
 """
 RX callback function type, signature should be:
 
 .. code-block:: python
 
-    def rx_cb(fdm_data: Construct.Struct, event_pipe: EventPipe):
+    def rx_cb(fdm_data: Construct.Struct, event_pipe: EventPipe) -> Optional[Construct.Struct]:
 """
 
 
@@ -93,20 +93,18 @@ class FGConnection:
         s = fix_fg_radian_parsing(s)
 
         # Call user method
-        if self.event_pipe.is_set() and self.event_pipe.child_poll():
-            # only update when we have data to send
-            s = self.fg_rx_cb(s, self.event_pipe)
-        else:
-            print('Receiving FG updates but no data to send', flush=True)
-        sys.stdout.flush()
-        tx_msg = self.fg_net_struct.build(dict(**s))
+        s = self.fg_rx_cb(s, self.event_pipe)
+        sys.stdout.flush()  # flush so that `print()` works
+
         # Send data back to FG
-        if self.fg_tx_sock is not None:
+        if self.fg_tx_sock is not None and s is not None:
+            tx_msg = self.fg_net_struct.build(dict(**s))
             self.fg_tx_sock.sendto(tx_msg, self.fg_tx_addr)
-        else:
-            print(f'Warning: TX not connected, not sending updates to FG for RX {self.fg_rx_sock.getsockname()}')
 
     def _rx_process(self):
+        if self.fg_tx_sock is None:
+            print(f'Warning: TX not connected, not sending updates to FG for RX {self.fg_rx_sock.getsockname()}')
+
         self.fg_rx_sock.settimeout(self.rx_timeout_s)
         while True:
             self._fg_packet_roundtrip()
