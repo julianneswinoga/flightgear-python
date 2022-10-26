@@ -1,3 +1,9 @@
+#### [1.1.0](https://github.com/julianneswinoga/flightgear-python/compare/1.0.4...1.1.0)
+
+> 26 October 2022
+
+- Allow a RX-only FDM loop (i.e. you just want to receive FDM data from FlightGear)
+
 #### [1.0.4](https://github.com/julianneswinoga/flightgear-python/compare/1.0.3...1.0.4)
 
 > 31 August 2022
