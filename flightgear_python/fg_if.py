@@ -31,7 +31,7 @@ class FGConnection:
     fg_net_struct: Optional[Struct] = None
 
     def __init__(self, rx_timeout_s: float = 2.0):
-        self.event_pipe = EventPipe(duplex=False)
+        self.event_pipe = EventPipe(duplex=True)
 
         self.fg_rx_sock: Optional[socket.socket] = None
         self.fg_rx_cb: Optional[rx_callback_type] = None
