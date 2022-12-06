@@ -1,0 +1,3 @@
+<output name="{flightgear_ip}" type="FLIGHTGEAR" protocol="UDP" port="{flightgear_port}" rate="{flightgear_rate}"
+        version="{flightgear_version}">
+</output>
