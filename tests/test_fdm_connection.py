@@ -1,8 +1,7 @@
 from flightgear_python.fg_if import FDMConnection
+from testing_common import supported_fdm_versions
 
 import pytest
-
-supported_fdm_versions = [24, 25, ]
 
 
 @pytest.mark.parametrize('fdm_version', supported_fdm_versions)
