@@ -1,3 +1,11 @@
+#### [1.1.1](https://github.com/julianneswinoga/flightgear-python/compare/1.1.0...1.1.1)
+
+> 6 December 2022
+
+- Add JSBSim integration test (only for FDMv24 for now) [`988ca66`](https://github.com/julianneswinoga/flightgear-python/commit/988ca66ca2572fa10078595c418500c231e568d5)
+- Removed build_and_upload.sh [`62bba22`](https://github.com/julianneswinoga/flightgear-python/commit/62bba22a01d98cd634f6e24ffba63e238c2f5fe3)
+- Add minor FDM check to wait for child process to be started [`757ca6b`](https://github.com/julianneswinoga/flightgear-python/commit/757ca6b6a9e0b95c41e20e79f3af37510ff4f7d4)
+
 #### [1.1.0](https://github.com/julianneswinoga/flightgear-python/compare/1.0.4...1.1.0)
 
 > 26 October 2022
