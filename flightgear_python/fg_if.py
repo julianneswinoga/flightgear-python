@@ -79,7 +79,6 @@ class FGConnection:
     def _fg_packet_roundtrip(self):
         # Receive up to 1KB of data from FG
         # blocking is fine here since we're in a separate process
-
         try:
             rx_msg, _ = self.fg_rx_sock.recvfrom(1024)
         except socket.timeout as e:
@@ -106,6 +105,7 @@ class FGConnection:
             print(f'Warning: TX not connected, not sending updates to FG for RX {self.fg_rx_sock.getsockname()}')
 
         self.fg_rx_sock.settimeout(self.rx_timeout_s)
+        self.event_pipe.child_send((True,))  # Signal to parent that child is running
         while True:
             self._fg_packet_roundtrip()
 
@@ -115,6 +115,7 @@ class FGConnection:
         """
         self.rx_proc = mp.Process(target=self._rx_process)
         self.rx_proc.start()
+        _ = self.event_pipe.parent_recv()  # Wait for child to actually run
 
     def stop(self):
         """
