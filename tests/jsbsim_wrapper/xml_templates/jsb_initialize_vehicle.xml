@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<initialize name="reset00">
+    <ubody unit="M/SEC">100.0</ubody> <!-- Forward Positive -->
+    <vbody unit="M/SEC">0.0</vbody> <!-- Right Positive -->
+    <wbody unit="M/SEC">0.0</wbody> <!-- Down Positive -->
+    <latitude unit="DEG">{lat_deg}</latitude>
+    <longitude unit="DEG">{lon_deg}</longitude>
+    <phi unit="DEG">0.0</phi> <!-- Forward axis, right hand positive -->
+    <theta unit="DEG">0.0</theta> <!-- Right axis, right hand positive -->
+    <psi unit="DEG">0.0</psi> <!-- Down axis, right hand positive -->
+    <altitude unit="M">{alt_m}</altitude> <!-- relative to the ground -->
+</initialize>

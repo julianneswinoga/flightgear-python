@@ -1,11 +1,17 @@
 #!/bin/bash
 set -e
 
-python3.6 -m venv --clear .venv
+if [ "$1" = 'clean' ]; then
+  python3.6 -m venv --clear .venv
+fi
+
 . ./.venv/bin/activate
-pip3 install -U pip
-pip3 install -U poetry
-poetry update
+
+if [ "$1" = 'clean' ]; then
+  pip3 install -U pip
+  pip3 install -U poetry
+  poetry update
+fi
 poetry build
 poetry install
 pytest --cov-report term-missing:skip-covered --cov=flightgear_python tests/
