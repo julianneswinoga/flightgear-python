@@ -1,3 +1,12 @@
+#### [1.2.0](https://github.com/julianneswinoga/flightgear-python/compare/1.1.1...1.2.0)
+
+> 12 February 2023
+
+- Add Controls interface (v27) and simple_ctrls.py example [`31328ea`](https://github.com/julianneswinoga/flightgear-python/commit/31328eacea1f5a3eb4307fdeea8c9bd488acc91b)
+- Add basic docs for ctrls interface, fix up represent_object() to handle all the new types [`300787f`](https://github.com/julianneswinoga/flightgear-python/commit/300787f63fd88929541d2065c5663656afe41f8f)
+- Add poll to simple_fdm example [`951c1e6`](https://github.com/julianneswinoga/flightgear-python/commit/951c1e6b8168be75e2f06631d8f451f02ef0138a)
+- Change RX callback type from Struct to Container [`7d38efd`](https://github.com/julianneswinoga/flightgear-python/commit/7d38efd7c6444a4203e5caf1884b2318434b5567)
+
 #### [1.1.1](https://github.com/julianneswinoga/flightgear-python/compare/1.1.0...1.1.1)
 
 > 6 December 2022
