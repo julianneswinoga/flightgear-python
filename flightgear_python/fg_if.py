@@ -8,18 +8,18 @@ import re
 import multiprocessing as mp
 from typing import Callable, Optional, Tuple, Any, Dict, Union, ByteString
 
-from construct import ConstError, Struct
+from construct import ConstError, Struct, Container
 
 from .general_util import EventPipe, strip_end
 from .fg_util import FGConnectionError, FGCommunicationError, fix_fg_radian_parsing
 
-rx_callback_type = Callable[[Struct, EventPipe], Optional[Struct]]
+rx_callback_type = Callable[[Container, EventPipe], Optional[Container]]
 """
 RX callback function type, signature should be:
 
 .. code-block:: python
 
-    def rx_cb(fdm_data: Construct.Struct, event_pipe: EventPipe) -> Optional[Construct.Struct]:
+    def rx_cb(fdm_data: Construct.Container, event_pipe: EventPipe) -> Optional[Construct.Container]:
 """
 
 
@@ -84,12 +84,13 @@ class FGConnection:
         except socket.timeout as e:
             raise FGConnectionError(f'Timeout waiting for data, waited {self.rx_timeout_s} seconds') from e
         try:
-            s = self.fg_net_struct.parse(rx_msg)
+            s: Container = self.fg_net_struct.parse(rx_msg)
         except ConstError as e:
             raise FGCommunicationError(f'Could not decode FG stream. Is this the right FDM version?\n{e}') from e
 
-        # Fix FG's radian parsing error :(
-        s = fix_fg_radian_parsing(s)
+        if isinstance(self, FDMConnection):
+            # Fix FG's radian parsing error :(
+            s = fix_fg_radian_parsing(s)
 
         # Call user method
         s = self.fg_rx_cb(s, self.event_pipe)
@@ -142,6 +143,24 @@ class FDMConnection(FGConnection):
             raise NotImplementedError(f'FDM version {fdm_version} not supported yet')
         # Create Struct from Dict
         self.fg_net_struct = Struct(*[k / v for k, v in fdm_struct.items()])
+
+
+class CtrlsConnection(FGConnection):
+    """
+    FlightGear Controls Connection
+
+    :param ctrls_version: Net Ctrls version (27)
+    """
+
+    def __init__(self, ctrls_version: int):
+        super().__init__()
+        # TODO: Support auto-version check
+        if ctrls_version == 27:
+            from .ctrls_v27 import ctrls_struct
+        else:
+            raise NotImplementedError(f'Controls version {ctrls_version} not supported yet')
+        # Create Struct from Dict
+        self.fg_net_struct = Struct(*[k / v for k, v in ctrls_struct.items()])
 
 
 class PropsConnection:
