@@ -30,15 +30,17 @@ exclude_patterns = []
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
-
+from typing import Any, Tuple, Optional, Callable
 from pprint import pformat
-
-from construct import Struct, FormatField, Subconstruct, Array, Enum, Const, Padded, Pass
+from construct import (Struct, FormatField, Subconstruct, Array, Enum, Const, Padded, Pass, Transformed, Flag, Renamed,
+                       BitsInteger)
 from importlib import import_module
 from docutils import nodes
 from docutils.parsers.rst import Directive
 from sphinx import addnodes
-from sphinx.util import inspect
+from sphinx.util import inspect, logging
+
+logger = logging.getLogger(__name__)
 
 
 def object_description(obj) -> str:
@@ -66,19 +68,19 @@ def autodoc_skip_member_handler(app, what, name, obj, skip, options):
     return should_skip
 
 
-def represent_object(o):
-    context_str = None
-
+def represent_object(o: Any, ident_level: int = 0, context_str: Optional[str] = None) -> Tuple[str, Optional[str]]:
     if isinstance(o, Struct):
-        # Print struct members nicely
-        keys = [s.name for s in o.subcons]
-        pp_str = '\n'.join(keys)
+        # Print struct members nicely, just a 'wrapper' around dict
+        # recurse
+        struct_dict = {s.name: s for s in o.subcons}
+        val_str, context_str = represent_object(struct_dict, ident_level + 1, context_str)
+        pp_str = '\n' + val_str
     elif isinstance(o, dict):
         pp_list = []
         for key, val in o.items():
             # recurse
-            val_str, context_str = represent_object(val)
-            pp_list.append(f"'{key}': {val_str}")
+            val_str, context_str = represent_object(val, ident_level + 1, context_str)
+            pp_list.append((' ' * ident_level * 2) + f"'{key}': {val_str}")
         pp_str = '\n'.join(pp_list)
     elif isinstance(o, FormatField):
         pp_str = o.fmtstr
@@ -92,16 +94,43 @@ def represent_object(o):
             special_str = f'[len={o.length}]'
         elif isinstance(o, Enum):
             # recurse
-            val_str, context_str = represent_object(o.ksymapping)
+            val_str, context_str = represent_object(o.ksymapping, ident_level + 1, context_str)
             special_str = f'\n{val_str}\n'
             special_str = special_str.replace('\n', '\n    ')
-        else:
+        elif isinstance(o, Transformed):
             special_str = ''
+            # "Transformed" isn't informative, so monkey-patch the type name to show what the underlying type is
+            type(o).__name__ = type(o.subcon).__name__
+        elif isinstance(o, Renamed):
+            special_str = ''
+            # "Renamed" isn't informative, so monkey-patch the type name to the "normal" name
+            type(o).__name__ = o.name
+        else:
+            logger.warning(f'No handler for Subconstruct {type(o)} ({o})')
+            special_str = ''
+
         # recurse
-        val_str, context_str = represent_object(o.subcon)
-        pp_str = f'{type(o).__name__}{special_str}({val_str})'
+        val_str, context_str = represent_object(o.subcon, ident_level + 1, context_str)
+        if val_str:
+            pp_str = f'{type(o).__name__}{special_str}({val_str})'
+        else:
+            pp_str = f'{type(o).__name__}{special_str}'
+    elif isinstance(o, BitsInteger):
+        pp_str = 'Bits'
+    elif isinstance(o, Pass.__class__):
+        pp_str = ''  # Pass is a do-nothing. No information to represent
+    elif isinstance(o, Flag.__class__):
+        pp_str = 'Flag'
+    elif isinstance(o, Callable):
+        pp_str = str(o)  # Maybe could do something better in the future here?
+    elif isinstance(o, int):
+        pp_str = str(o)
+    elif isinstance(o, str):
+        pp_str = o
     else:
+        logger.warning(f'Default handler for {type(o)} ({o})')
         pp_str = pformat(o, indent=4)
+
     return pp_str, context_str
 
 

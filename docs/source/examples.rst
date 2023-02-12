@@ -8,6 +8,13 @@ Simple FDM loop
     :caption: examples/simple_fdm.py
     :lines: 2-
 
+Simple Controls loop
+--------------------
+
+.. literalinclude:: /../../examples/simple_ctrls.py
+    :caption: examples/simple_ctrls.py
+    :lines: 2-
+
 Simple telnet (properties) interface
 ------------------------------------
 
