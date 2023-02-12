@@ -3,7 +3,7 @@ FlightGear-specific utility functionality
 """
 import math
 
-from construct import Struct
+from construct import Container
 
 
 class FGConnectionError(Exception):
@@ -36,7 +36,7 @@ def offset_fg_radian(in_rad: float) -> float:
     return math.degrees(in_rad) * coeff
 
 
-def fix_fg_radian_parsing(s: Struct) -> Struct:
+def fix_fg_radian_parsing(s: Container) -> Container:
     """
     Helper for all the radian values in the FDM
     sphinx-no-autodoc
