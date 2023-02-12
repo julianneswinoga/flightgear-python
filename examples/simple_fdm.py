@@ -6,9 +6,10 @@ import time
 from flightgear_python.fg_if import FDMConnection
 
 def fdm_callback(fdm_data, event_pipe):
-    phi_rad_child, = event_pipe.child_recv()  # unpack tuple
-    # set only the data that we need to
-    fdm_data['phi_rad'] = phi_rad_child  # we can force our own values
+    if event_pipe.child_poll():
+        phi_rad_child, = event_pipe.child_recv()  # unpack tuple
+        # set only the data that we need to
+        fdm_data['phi_rad'] = phi_rad_child  # we can force our own values
     fdm_data.alt_m = fdm_data.alt_m + 0.5  # or just make a relative change
     return fdm_data  # return the whole structure
 
@@ -24,7 +25,7 @@ fdm_conn.start()  # Start the FDM RX/TX loop
 
 phi_rad_parent = 0.0
 while True:
-    phi_rad_parent += 0.02
+    phi_rad_parent += 0.1
     # could also do `fdm_conn.event_pipe.parent_send` so you just need to pass around `fdm_conn`
     fdm_event_pipe.parent_send((phi_rad_parent,))  # send tuple
-    time.sleep(0.01)
+    time.sleep(0.5)
