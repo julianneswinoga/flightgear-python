@@ -1,3 +1,13 @@
+#### [1.2.1](https://github.com/julianneswinoga/flightgear-python/compare/1.2.0...1.2.1)
+
+> 12 March 2023
+
+- Add support for Windows [`#5`](https://github.com/julianneswinoga/flightgear-python/pull/5)
+- Add Windows executor to CircleCI [`227e8f5`](https://github.com/julianneswinoga/flightgear-python/commit/227e8f563807aa57dedf8fe09f98f91603b95afc)
+- Change `jsbsim_wrapper.py` test to close files before JSB inits [`57e13b0`](https://github.com/julianneswinoga/flightgear-python/commit/57e13b0ce6072744a3dea7aa40aa3d106d05443e)
+- Convert `Padding` to `Bytes` [`ab13cc7`](https://github.com/julianneswinoga/flightgear-python/commit/ab13cc75cb0debeb7f2dedc77d532436cf9f8bdc)
+- Add SO_REUSEADDR to fg_rx_sock [`7d8f649`](https://github.com/julianneswinoga/flightgear-python/commit/7d8f649b7cb3e06128fa86b27fbdd01449f90a58)
+
 #### [1.2.0](https://github.com/julianneswinoga/flightgear-python/compare/1.1.1...1.2.0)
 
 > 12 February 2023
