@@ -51,6 +51,19 @@ jobs:
       - run:
           name: Run pytest
           command: poetry run coverage run -m pytest tests/
+      - run:
+          name: Coveralls
+          command: coveralls
+      - when:
+          condition:
+            equal: [ "3.6", << parameters.python-version >> ]
+          steps:
+            - store_artifacts:
+                path: dist
+            - persist_to_workspace:
+                root: .
+                paths:
+                  - dist
 
   # OMG why does windows on circleci suck so much :////
   build_install_test_windows:
