@@ -4,7 +4,7 @@ FlightGear Controls Network interface, version 27
 See https://github.com/FlightGear/flightgear/blob/619226e9d069d2a3e8ebf8658fb5441ca8a2c233/src/Network/net_ctrls.hxx
 """
 
-from construct import Array, Enum, Const, Padding, Int32ub, Float64b, BitStruct, Flag, BitsInteger, Mapping
+from construct import Array, Enum, Const, Bytes, Int32ub, Float64b, BitStruct, Flag, BitsInteger
 
 RESERVED_SPACE = 25  #: Constant value from define
 
@@ -16,7 +16,7 @@ FG_MAX_TANKS = 8  #: Constant value from enum
 #: Ctrls v27 structure
 ctrls_struct = {
     'version': Const(27, Int32ub),
-    '_padding0': Padding(4),  # TODO: Not documented, probably due to struct packing
+    '_padding0': Bytes(4),  # TODO: Not documented, probably due to struct packing
     'aileron': Float64b,  # -1 ... 1
     'elevator': Float64b,  # -1 ... 1
     'rudder': Float64b,  # -1 ... 1
@@ -36,7 +36,7 @@ ctrls_struct = {
                            Enum(Int32ub, off=0, on=1)
                            ),
     # throttle needs to be moved forward 1 double?
-    '_padding3': Padding(4),  # TODO: Not documented, probably due to struct packing
+    '_padding3': Bytes(4),  # TODO: Not documented, probably due to struct packing
     'throttle': Array(FG_MAX_ENGINES, Float64b),  # 0 ... 1
     'mixture': Array(FG_MAX_ENGINES, Float64b),  # 0 ... 1
     'condition': Array(FG_MAX_ENGINES, Float64b),  # 0 ... 1
@@ -58,7 +58,7 @@ ctrls_struct = {
     'fuel_selector': Array(FG_MAX_TANKS, Enum(Int32ub, off=0, on=1)),
     'xfer_pump': Array(5, Int32ub),  # specifies transfer from array value tank to tank specified by int value
     'cross_feed': Enum(Int32ub, off=0, on=1),
-    '_padding4': Padding(4),  # TODO: Not documented, probably due to struct packing
+    '_padding4': Bytes(4),  # TODO: Not documented, probably due to struct packing
     'brake_left': Float64b,
     'brake_right': Float64b,
     'copilot_brake_left': Float64b,
@@ -85,5 +85,5 @@ ctrls_struct = {
         position=Flag,
         master=Flag,
     ),
-    '_reserved': Padding(Int32ub.length * RESERVED_SPACE),
+    '_reserved': Bytes(Int32ub.length * RESERVED_SPACE),
 }

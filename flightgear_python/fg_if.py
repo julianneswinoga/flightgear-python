@@ -56,6 +56,7 @@ class FGConnection:
         """
         # TODO: Support TCP server so that we only need 1 port
         self.fg_rx_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.fg_rx_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         fg_rx_addr = (fg_host, fg_port)
         try:
             self.fg_rx_sock.bind(fg_rx_addr)

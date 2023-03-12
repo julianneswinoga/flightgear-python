@@ -4,7 +4,7 @@ FlightGear Flight Dynamics Model Network interface, version 24
 See https://github.com/FlightGear/flightgear/blob/00efc0960f880b50ed25eba4bc15a0ff84abaf9f/src/Network/net_fdm.hxx
 """
 
-from construct import Array, Enum, Const, Padding, Int32ub, Int32sb, Float64b, Float32b
+from construct import Array, Enum, Const, Bytes, Int32ub, Int32sb, Float64b, Float32b
 
 FG_MAX_ENGINES = 4  #: Constant value from enum
 FG_MAX_WHEELS = 3  #: Constant value from enum
@@ -14,7 +14,7 @@ FG_MAX_TANKS = 4  #: Constant value from enum
 #: FDM v24 structure
 fdm_struct = {
     'version': Const(24, Int32ub),
-    '_padding': Padding(4),
+    '_padding': Bytes(4),
     'lon_rad': Float64b,
     'lat_rad': Float64b,
     'alt_m': Float64b,
