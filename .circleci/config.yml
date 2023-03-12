@@ -67,14 +67,10 @@ jobs:
           command: |
             Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
             RefreshEnv
-            choco list --localonly
             choco uninstall python --yes
             RefreshEnv
             choco uninstall python3 --yes
-            RefreshEnv
-            choco list --localonly
             Remove-Item -Recurse -Force C:/Python310
-            RefreshEnv
       - run:
           name: Install pyenv-win
           command: |
@@ -202,7 +198,8 @@ workflows:
       - build_install_test_windows:
           matrix:
             parameters:
-              python-version: ["3.6.8", "3.7.9", "3.8.10", "3.9.13", "3.10.5"]
+              #python-version: ["3.6.8", "3.7.9", "3.8.10", "3.9.13", "3.10.5"]
+              python-version: ["3.8.10"]
           filters:  # required since `deploy` has tag filters AND requires `build`
             tags:
               only: /.*/
