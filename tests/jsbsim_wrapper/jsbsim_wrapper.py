@@ -1,6 +1,8 @@
 import math
 import tempfile
+import time
 from typing import List, NamedTuple
+from pathlib import Path
 
 import jsbsim
 
@@ -160,24 +162,33 @@ def build_vehicle_xml(jsb_config: JsbConfig, init_script_path: str) -> str:
 
 def make_and_load_jsb_scripts(jsbfdm: jsbsim.FGFDMExec, jsb_config: JsbConfig):
     # Create initialize script
-    initialize_fp = tempfile.NamedTemporaryFile('w', suffix='.xml')
+    init_script_fp = tempfile.NamedTemporaryFile('w', suffix='.xml', delete=False)
+    init_script_path = init_script_fp.name
     init_script_xml = build_initialize_xml(jsb_config)
-    initialize_fp.write(init_script_xml)
-    initialize_fp.flush()
+    init_script_fp.write(init_script_xml)
+    init_script_fp.flush()
+    init_script_fp.close()
 
     # Create vehicle script
-    veh_script_fp = tempfile.NamedTemporaryFile('w', suffix='.xml')
-    veh_script_xml = build_vehicle_xml(jsb_config, initialize_fp.name)
-    print(f'Full vehicle script @ {veh_script_fp.name}:\n{veh_script_xml}')
+    veh_script_fp = tempfile.NamedTemporaryFile('w', suffix='.xml', delete=False)
+    veh_script_path = veh_script_fp.name
+    veh_script_xml = build_vehicle_xml(jsb_config, init_script_path)
+    print(f'Full vehicle script @ {veh_script_path}:\n{veh_script_xml}')
     veh_script_fp.write(veh_script_xml)
     veh_script_fp.flush()
+    veh_script_fp.close()  # Need to close file before it can be read. Windows issue :/
 
     # Tell JSB to load the vehicle script
-    jsbfdm.load_script(veh_script_fp.name)
+    script_loaded = jsbfdm.load_script(veh_script_path)
+    if not script_loaded:
+        raise FileNotFoundError(f'JSB failed to load script: {veh_script_path}')
 
     # cleanup
-    initialize_fp.close()
-    veh_script_fp.close()
+    # Can't use missing_ok, introduced in 3.8
+    if Path(init_script_path).is_file():
+        Path(init_script_path).unlink()
+    if Path(veh_script_path).is_file():
+        Path(veh_script_path).unlink()
 
 
 def setup_jsbsim(jsb_config: JsbConfig) -> jsbsim.FGFDMExec:
