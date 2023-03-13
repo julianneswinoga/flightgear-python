@@ -1,3 +1,13 @@
+#### [1.2.2](https://github.com/julianneswinoga/flightgear-python/compare/1.2.1...1.2.2)
+
+> 13 March 2023
+
+- Fix Windows build again [`3e9c7d4`](https://github.com/julianneswinoga/flightgear-python/commit/3e9c7d461f24d2ccdf566fea95de6f97ad85309c)
+  - explicitly specify localhost for `fgfs`
+  - add `if __name__=='__main__'` (needed for multiprocessing on Windows)
+  - change from `Flag` to `Bit`, switch from `multiprocessing` to `multiprocess` (`pickle` to `dill`)
+- Add `Bytes` to doc handler, specify `Bits` in docs [`8e50e3f`](https://github.com/julianneswinoga/flightgear-python/commit/8e50e3f202135a73e976361db0714fb4dd4968ab)
+
 #### [1.2.1](https://github.com/julianneswinoga/flightgear-python/compare/1.2.0...1.2.1)
 
 > 12 March 2023
