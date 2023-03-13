@@ -33,7 +33,7 @@ html_static_path = ['_static']
 from typing import Any, Tuple, Optional, Callable
 from pprint import pformat
 from construct import (Struct, FormatField, Subconstruct, Array, Enum, Const, Padded, Pass, Transformed, Flag, Renamed,
-                       BitsInteger)
+                       BitsInteger, Bytes)
 from importlib import import_module
 from docutils import nodes
 from docutils.parsers.rst import Directive
@@ -116,7 +116,15 @@ def represent_object(o: Any, ident_level: int = 0, context_str: Optional[str] = 
         else:
             pp_str = f'{type(o).__name__}{special_str}'
     elif isinstance(o, BitsInteger):
-        pp_str = 'Bits'
+        if o.length == 1:
+            pp_str = 'Bit'
+        else:
+            pp_str = f'{o.length} Bits'
+    elif isinstance(o, Bytes):
+        if o.length == 1:
+            pp_str = 'Byte'
+        else:
+            pp_str = f'{o.length} Bytes'
     elif isinstance(o, Pass.__class__):
         pp_str = ''  # Pass is a do-nothing. No information to represent
     elif isinstance(o, Flag.__class__):
