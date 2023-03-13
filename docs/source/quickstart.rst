@@ -7,7 +7,7 @@ Quick-Start
 
     #. If you're using the FDM interface:
 
-        * ``--fdm=null --max-fps=30 --native-fdm=socket,out,30,,5501,udp --native-fdm=socket,in,30,,5502,udp``
+        * ``--fdm=null --max-fps=30 --native-fdm=socket,out,30,localhost,5501,udp --native-fdm=socket,in,30,localhost,5502,udp``
 
         * the ``30`` in the arguments must match, so that the IO and the framerate are the same
 

@@ -13,11 +13,13 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.6"
 construct = "^2.10"
+# Following are pegged at the latest version that supports Python 3.6
+multiprocess = "==0.70.12.2"
 
 [tool.poetry.dev-dependencies]
 sphinx = "^5.1.1"
 sphinx_mdinclude = "^0.5.2"
-sphinx-rtd-theme = "^1.0.0"
+sphinx-rtd-theme = "^0.5.2"  # Can't `poetry update` with 1.0.0?
 sh = "^1.14.3"
 pytest-cov = "^3.0.0"
 # Following are pegged at the latest version that supports Python 3.6
