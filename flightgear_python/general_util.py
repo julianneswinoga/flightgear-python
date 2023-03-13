@@ -1,7 +1,7 @@
 """
 non-FlightGear-specific utility functionality
 """
-import multiprocessing as mp
+import multiprocess as mp
 from typing import Any, Union, ByteString
 
 

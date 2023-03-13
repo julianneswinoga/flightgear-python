@@ -5,7 +5,7 @@ import copy
 import socket
 import sys
 import re
-import multiprocessing as mp
+import multiprocess as mp
 from typing import Callable, Optional, Tuple, Any, Dict, Union, ByteString
 
 from construct import ConstError, Struct, Container
@@ -48,7 +48,7 @@ class FGConnection:
 
         :param fg_host: IP address of FG (usually localhost)
         :param fg_port: Port of the output socket (i.e. the ``5501`` from\
-        ``--native-fdm=socket,out,30,,5501,udp``)
+        ``--native-fdm=socket,out,30,localhost,5501,udp``)
         :param rx_cb: Callback function, called whenever we receive data from FG.\
         Function signature should follow :attr:`rx_callback_type`
         :return: ``EventPipe`` so that data can be passed from the parent process\
@@ -72,7 +72,7 @@ class FGConnection:
 
         :param fg_host: IP address of FG (usually localhost)
         :param fg_port: Port of the input socket (i.e. the ``5502`` from\
-        ``--native-fdm=socket,in,,,5502,udp``)
+        ``--native-fdm=socket,in,30,localhost,5502,udp``)
         """
         self.fg_tx_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.fg_tx_addr = (fg_host, fg_port)

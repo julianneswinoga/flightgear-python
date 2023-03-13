@@ -10,7 +10,7 @@ fi
 if [ "$1" = 'clean' ]; then
   pip3 install -U pip
   pip3 install -U poetry
-  poetry update
+  poetry update -vvv
 fi
 poetry build
 poetry install

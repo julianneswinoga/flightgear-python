@@ -4,7 +4,7 @@ FlightGear Controls Network interface, version 27
 See https://github.com/FlightGear/flightgear/blob/619226e9d069d2a3e8ebf8658fb5441ca8a2c233/src/Network/net_ctrls.hxx
 """
 
-from construct import Array, Enum, Const, Bytes, Int32ub, Float64b, BitStruct, Flag, BitsInteger
+from construct import Array, Enum, Const, Bytes, Int32ub, Float64b, BitStruct, Bit, BitsInteger
 
 RESERVED_SPACE = 25  #: Constant value from define
 
@@ -81,9 +81,9 @@ ctrls_struct = {
     'speedup': Int32ub,  # integer speedup multiplier
     'freeze': BitStruct(  # Default is big-endian
         other=BitsInteger((Int32ub.sizeof() * 8) - 3),  # Rest of uint32 minus the 3 flags
-        fuel=Flag,
-        position=Flag,
-        master=Flag,
+        fuel=Bit,
+        position=Bit,
+        master=Bit,
     ),
     '_reserved': Bytes(Int32ub.length * RESERVED_SPACE),
 }

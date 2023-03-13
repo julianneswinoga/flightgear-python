@@ -27,17 +27,18 @@ def ctrls_callback(ctrls_data, event_pipe):
     return ctrls_data  # return the whole structure
 
 """
-Start FlightGear with `--native-ctrls=socket,out,30,,5503,udp --native-ctrls=socket,in,30,,5504,udp`
+Start FlightGear with `--native-ctrls=socket,out,30,localhost,5503,udp --native-ctrls=socket,in,30,localhost,5504,udp`
 """
-ctrls_conn = CtrlsConnection(ctrls_version=27)
-ctrls_event_pipe = ctrls_conn.connect_rx('localhost', 5503, ctrls_callback)
-ctrls_conn.connect_tx('localhost', 5504)
-ctrls_conn.start()  # Start the Ctrls RX/TX loop
+if __name__ == '__main__':  # NOTE: This is REQUIRED on Windows!
+    ctrls_conn = CtrlsConnection(ctrls_version=27)
+    ctrls_event_pipe = ctrls_conn.connect_rx('localhost', 5503, ctrls_callback)
+    ctrls_conn.connect_tx('localhost', 5504)
+    ctrls_conn.start()  # Start the Ctrls RX/TX loop
 
-gear_down_parent = True
-time.sleep(2)
-while True:
-    # could also do `ctrls_conn.event_pipe.parent_send` so you just need to pass around `ctrls_conn`
-    ctrls_event_pipe.parent_send((gear_down_parent,))  # send tuple
-    gear_down_parent = not gear_down_parent  # Flip gear state
-    time.sleep(10)
+    gear_down_parent = True
+    time.sleep(2)
+    while True:
+        # could also do `ctrls_conn.event_pipe.parent_send` so you just need to pass around `ctrls_conn`
+        ctrls_event_pipe.parent_send((gear_down_parent,))  # send tuple
+        gear_down_parent = not gear_down_parent  # Flip gear state
+        time.sleep(10)

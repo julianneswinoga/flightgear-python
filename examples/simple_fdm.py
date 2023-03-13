@@ -14,18 +14,19 @@ def fdm_callback(fdm_data, event_pipe):
     return fdm_data  # return the whole structure
 
 """
-Start FlightGear with `--native-fdm=socket,out,30,,5501,udp --native-fdm=socket,in,30,,5502,udp`
+Start FlightGear with `--native-fdm=socket,out,30,localhost,5501,udp --native-fdm=socket,in,30,localhost,5502,udp`
 (you probably also want `--fdm=null` and `--max-fps=30` to stop the simulation fighting with
 these external commands)
 """
-fdm_conn = FDMConnection(fdm_version=24)  # May need to change version from 24
-fdm_event_pipe = fdm_conn.connect_rx('localhost', 5501, fdm_callback)
-fdm_conn.connect_tx('localhost', 5502)
-fdm_conn.start()  # Start the FDM RX/TX loop
+if __name__ == '__main__':  # NOTE: This is REQUIRED on Windows!
+    fdm_conn = FDMConnection(fdm_version=24)  # May need to change version from 24
+    fdm_event_pipe = fdm_conn.connect_rx('localhost', 5501, fdm_callback)
+    fdm_conn.connect_tx('localhost', 5502)
+    fdm_conn.start()  # Start the FDM RX/TX loop
 
-phi_rad_parent = 0.0
-while True:
-    phi_rad_parent += 0.1
-    # could also do `fdm_conn.event_pipe.parent_send` so you just need to pass around `fdm_conn`
-    fdm_event_pipe.parent_send((phi_rad_parent,))  # send tuple
-    time.sleep(0.5)
+    phi_rad_parent = 0.0
+    while True:
+        phi_rad_parent += 0.1
+        # could also do `fdm_conn.event_pipe.parent_send` so you just need to pass around `fdm_conn`
+        fdm_event_pipe.parent_send((phi_rad_parent,))  # send tuple
+        time.sleep(0.5)
