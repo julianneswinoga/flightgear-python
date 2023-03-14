@@ -15,6 +15,16 @@ Simple Controls loop
     :caption: examples/simple_ctrls.py
     :lines: 2-
 
+Simple Wing Leveler
+--------------------
+Here we connect a FDM interface and a Controls interface together in order
+to set the wings to 5 degrees clockwise. (change ``roll_deg_setpoint`` to
+``0.0`` to *actually* level the wings)
+
+.. literalinclude:: /../../examples/simple_wing_level.py
+    :caption: examples/simple_wing_level.py
+    :lines: 2-
+
 Simple telnet (properties) interface
 ------------------------------------
 
