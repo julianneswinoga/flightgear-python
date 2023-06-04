@@ -9,6 +9,8 @@ update-pip-poetry: &update-pip-poetry |-
   pip3 install --upgrade pip
   # 3.6 support was dropped in 1.2.0
   pip3 install --upgrade poetry==1.1.15
+  # Work around broken urllib3 dependency from poetry 1.1.15
+  pip3 install --upgrade urllib3==1.26.12
   # Don't put more poetry commands here, they'll use the old version for some reason
 
 jobs:
@@ -115,6 +117,9 @@ jobs:
             Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
             RefreshEnv
             python -m pip install -U poetry==1.1.15
+            RefreshEnv
+            # Work around broken urllib3 dependency from poetry 1.1.15
+            python -m pip install --upgrade urllib3==1.26.12
       - when:
           # 3.10 has a problem with numpy 1.19.5, from JSBSim
           # This hack can be removed when 3.6 support is dropped
