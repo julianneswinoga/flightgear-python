@@ -238,8 +238,10 @@ workflows:
       - poetry_publish:
           requires:
             - build_install_test
+            - build_install_test_windows
           <<: *tag-filter
       - github_publish:
           requires:
             - build_install_test
+            - build_install_test_windows
           <<: *tag-filter
