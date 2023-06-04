@@ -85,7 +85,14 @@ jobs:
             choco uninstall python --yes
             RefreshEnv
             choco uninstall python3 --yes
-            Remove-Item -Recurse -Force C:/Python310
+            Get-ChildItem -Path "C:/"
+            $py_sys_location = "C:/Python311"
+            If (Test-Path $py_sys_location) {
+              Remove-Item -Recurse -Force $py_sys_location
+            }
+            else {
+              Write-Host "$py_sys_location not found"
+            }
       - run:
           name: Install pyenv-win
           command: |
