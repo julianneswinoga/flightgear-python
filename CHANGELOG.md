@@ -1,3 +1,12 @@
+#### [1.3.0](https://github.com/julianneswinoga/flightgear-python/compare/1.2.2...1.3.0)
+
+> 4 June 2023
+
+- Add GUI interface
+- Add basic GUI documentation [`75f352b`](https://github.com/julianneswinoga/flightgear-python/commit/75f352b60800e5a0c639367cb4b284f9529a5bff)
+- Add `simple_wing_level.py` example [`#7`](https://github.com/julianneswinoga/flightgear-python/pull/7)
+- Add GUI pickling test, update poetry.lock [`cd0ed18`](https://github.com/julianneswinoga/flightgear-python/commit/cd0ed185ddf6e76118d8cb212d1983e29031b30d)
+
 #### [1.2.2](https://github.com/julianneswinoga/flightgear-python/compare/1.2.1...1.2.2)
 
 > 13 March 2023
