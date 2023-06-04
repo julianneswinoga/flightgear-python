@@ -50,7 +50,7 @@ Supported interfaces:
 - [x] [Native Protocol](https://wiki.flightgear.org/Property_Tree/Sockets) (currently only UDP)
   - [x] Flight Dynamics Model ([`net_fdm.hxx`](https://github.com/FlightGear/flightgear/blob/next/src/Network/net_fdm.hxx))
   - [x] Controls ([`net_ctrls.hxx`](https://github.com/FlightGear/flightgear/blob/next/src/Network/net_ctrls.hxx))
-  - [ ] GUI ([`net_gui.hxx`](https://github.com/FlightGear/flightgear/blob/next/src/Network/net_gui.hxx))
+  - [x] GUI ([`net_gui.hxx`](https://github.com/FlightGear/flightgear/blob/next/src/Network/net_gui.hxx))
 - [ ] [Generic Protocol](https://wiki.flightgear.org/Generic_protocol)
 - [x] [Telnet](https://wiki.flightgear.org/Telnet_usage)
 - [ ] [HTTP](https://wiki.flightgear.org/Property_Tree_Servers)

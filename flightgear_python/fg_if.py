@@ -87,7 +87,7 @@ class FGConnection:
         try:
             s: Container = self.fg_net_struct.parse(rx_msg)
         except ConstError as e:
-            raise FGCommunicationError(f'Could not decode FG stream. Is this the right FDM version?\n{e}') from e
+            raise FGCommunicationError(f'Could not decode FG stream. Did you set the right version?\n{e}') from e
 
         if isinstance(self, FDMConnection):
             # Fix FG's radian parsing error :(
@@ -162,6 +162,24 @@ class CtrlsConnection(FGConnection):
             raise NotImplementedError(f'Controls version {ctrls_version} not supported yet')
         # Create Struct from Dict
         self.fg_net_struct = Struct(*[k / v for k, v in ctrls_struct.items()])
+
+
+class GuiConnection(FGConnection):
+    """
+    FlightGear GUI Connection
+
+    :param gui_version: Net GUI version (8)
+    """
+
+    def __init__(self, gui_version: int):
+        super().__init__()
+        # TODO: Support auto-version check
+        if gui_version == 8:
+            from .gui_v8 import gui_struct
+        else:
+            raise NotImplementedError(f'GUI version {gui_version} not supported yet')
+        # Create Struct from Dict
+        self.fg_net_struct = Struct(*[k / v for k, v in gui_struct.items()])
 
 
 class PropsConnection:
