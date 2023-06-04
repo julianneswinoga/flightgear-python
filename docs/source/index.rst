@@ -25,5 +25,6 @@ API
     flightgear_python.fdm_v24
     flightgear_python.fdm_v25
     flightgear_python.ctrls_v27
+    flightgear_python.gui_v8
     flightgear_python.fg_util
     flightgear_python.general_util

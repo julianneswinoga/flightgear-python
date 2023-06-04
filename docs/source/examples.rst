@@ -25,6 +25,13 @@ to set the wings to 5 degrees clockwise. (change ``roll_deg_setpoint`` to
     :caption: examples/simple_wing_level.py
     :lines: 2-
 
+Simple GUI loop
+--------------------
+
+.. literalinclude:: /../../examples/simple_gui.py
+    :caption: examples/simple_gui.py
+    :lines: 2-
+
 Simple telnet (properties) interface
 ------------------------------------
 
