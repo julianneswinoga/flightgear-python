@@ -92,3 +92,64 @@ Simple telnet (properties) interface
 .. raw:: html
 
    </details>
+
+Simple HTTP (properties) interface
+------------------------------------
+
+.. literalinclude:: /../../examples/simple_http.py
+    :caption: examples/simple_http.py
+    :lines: 2-
+
+.. raw:: html
+
+   <details>
+   <summary><a>sample output</a></summary>
+
+.. code-block:: text
+
+    {'directories': ['/sim',
+                     '/position',
+                     '/orientation',
+                     '/autopilot',
+                     '/velocities',
+                     '/controls',
+                     '/environment',
+                     '/instrumentation',
+                     '/local-weather',
+                     '/accelerations',
+                     '/devices',
+                     '/input',
+                     '/systems',
+                     '/logging',
+                     '/nasal',
+                     '/scenery',
+                     '/earthview',
+                     '/fdm',
+                     '/engines',
+                     '/payload',
+                     '/aircraft',
+                     '/consumables',
+                     '/gear',
+                     '/rotors',
+                     '/limits',
+                     '/save',
+                     '/command',
+                     '/canvas',
+                     '/surface-positions',
+                     '/ai',
+                     '/rendering',
+                     '/ephemeris',
+                     '/pax',
+                     '/io',
+                     '/hazards',
+                     '/Interior',
+                     '/_debug'],
+     'properties': {'/models': ''}}
+    Altitude: 4757.3ft
+    Altitude: 4782.7ft
+    Altitude: 4807.4ft
+    ...
+
+.. raw:: html
+
+   </details>
