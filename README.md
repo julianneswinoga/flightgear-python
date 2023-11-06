@@ -53,4 +53,4 @@ Supported interfaces:
   - [x] GUI ([`net_gui.hxx`](https://github.com/FlightGear/flightgear/blob/next/src/Network/net_gui.hxx))
 - [ ] [Generic Protocol](https://wiki.flightgear.org/Generic_protocol)
 - [x] [Telnet](https://wiki.flightgear.org/Telnet_usage)
-- [ ] [HTTP](https://wiki.flightgear.org/Property_Tree_Servers)
+- [x] [HTTP](https://wiki.flightgear.org/Property_Tree_Servers)
