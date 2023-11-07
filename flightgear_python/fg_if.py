@@ -4,6 +4,7 @@ Main FlightGear interface module
 import copy
 import socket
 import sys
+import re
 from typing import Any, ByteString, Callable, Dict, Optional, Tuple, Union
 
 import multiprocess as mp
@@ -366,6 +367,7 @@ class PropsConnection:
         }
         return rtn_dict
 
+
 class HTTPConnection:
     """
     FlightGear HTTP Interface Connection (also known as the property interface).
@@ -376,7 +378,7 @@ class HTTPConnection:
         ``--httpd=5050``)
     """
 
-    def __init__(self, host: str, tcp_port: int, rx_timeout_s: float = 2.0):
+    def __init__(self, host: str, tcp_port: int):
         self.host = host
         self.port = tcp_port
         self.url = f'http://{self.host}:{self.port}/json'
