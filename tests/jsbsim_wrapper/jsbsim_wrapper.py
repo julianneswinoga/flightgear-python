@@ -1,8 +1,8 @@
 import math
 import tempfile
 import time
-from typing import List, NamedTuple
 from pathlib import Path
+from typing import List, NamedTuple
 
 import jsbsim
 
@@ -28,7 +28,7 @@ class JsbConfig(NamedTuple):
     # Must be at least 1 FlightGear output (it'll be the internal one to the python script)
     flightgear_outputs: List[FlightGearUdpOutput]
     # optional
-    vehicle_str: str = 'c310'
+    vehicle_str: str = "c310"
     wp_distance_thresh: float = 500.0  # I think this is feet?
     end_time: float = 60 * 60 * 24  # Default 24 hours
     time_step: float = 1.0 / 50.0  # Default 50Hz
@@ -98,28 +98,29 @@ def fix_jsb_latitude(lat_deg: float) -> float:
 
 
 def build_wp_xml(wp_list: List[Waypoint], wp_distance_thresh: float) -> str:
-    wp_xml = ''
+    wp_xml = ""
     for wp_idx, waypoint_data in enumerate(wp_list, start=1):
         prev_wp_idx = len(wp_list) if wp_idx == 1 else wp_idx - 1
-        conditions = f'''
+        conditions = f"""
 <condition logic="AND">
     ap/active-waypoint eq {prev_wp_idx}
     guidance/wp-distance lt {wp_distance_thresh}
 </condition>
-'''
+"""
         if wp_idx == 1:
             # Add in the first condition: if active waypoint is 0 (not set), start going to 1
-            conditions = f'''
+            conditions = f"""
 <condition logic="OR">
     ap/active-waypoint eq 0
     {conditions}
 </condition>
-'''
+"""
         wp_xml += fill_xml_template(
-            'jsbsim_wrapper/xml_templates/jsb_single_wp.xml',
+            "jsbsim_wrapper/xml_templates/jsb_single_wp.xml",
             wp_idx=wp_idx,
             conditions=conditions,
-            lat_rad=math.radians(waypoint_data.lat_deg), lon_rad=math.radians(waypoint_data.lon_deg),
+            lat_rad=math.radians(waypoint_data.lat_deg),
+            lon_rad=math.radians(waypoint_data.lon_deg),
             alt_ft=m_to_ft(waypoint_data.alt_m),
         )
     return wp_xml
@@ -129,7 +130,10 @@ def build_initialize_xml(jsb_config: JsbConfig) -> str:
     # Take the starting location from the last waypoint
     start_lat_deg, start_lon_deg, start_alt_m = jsb_config.waypoints[-1]
     init_script_xml = fill_xml_template(
-        'jsbsim_wrapper/xml_templates/jsb_initialize_vehicle.xml', lat_deg=start_lat_deg, lon_deg=start_lon_deg, alt_m=start_alt_m
+        "jsbsim_wrapper/xml_templates/jsb_initialize_vehicle.xml",
+        lat_deg=start_lat_deg,
+        lon_deg=start_lon_deg,
+        alt_m=start_alt_m,
     )
     return init_script_xml
 
@@ -137,10 +141,10 @@ def build_initialize_xml(jsb_config: JsbConfig) -> str:
 def build_vehicle_xml(jsb_config: JsbConfig, init_script_path: str) -> str:
     wp_xml = build_wp_xml(jsb_config.waypoints, jsb_config.wp_distance_thresh)
 
-    outputs_config_xml = ''
+    outputs_config_xml = ""
     for fg_output in jsb_config.flightgear_outputs:
         output_config_xml = fill_xml_template(
-            'jsbsim_wrapper/xml_templates/jsb_output_config_flightgear.xml',
+            "jsbsim_wrapper/xml_templates/jsb_output_config_flightgear.xml",
             flightgear_ip=fg_output.ip_addr,
             flightgear_port=fg_output.port,
             flightgear_version=fg_output.fg_version,
@@ -149,7 +153,7 @@ def build_vehicle_xml(jsb_config: JsbConfig, init_script_path: str) -> str:
         outputs_config_xml += output_config_xml
 
     veh_script_xml = fill_xml_template(
-        'jsbsim_wrapper/xml_templates/jsb_vehicle_script.xml',
+        "jsbsim_wrapper/xml_templates/jsb_vehicle_script.xml",
         init_script_path=init_script_path,  # Vehicle script references the initialize script path
         vehicle=jsb_config.vehicle_str,
         wp_xml=wp_xml,
@@ -162,7 +166,7 @@ def build_vehicle_xml(jsb_config: JsbConfig, init_script_path: str) -> str:
 
 def make_and_load_jsb_scripts(jsbfdm: jsbsim.FGFDMExec, jsb_config: JsbConfig):
     # Create initialize script
-    init_script_fp = tempfile.NamedTemporaryFile('w', suffix='.xml', delete=False)
+    init_script_fp = tempfile.NamedTemporaryFile("w", suffix=".xml", delete=False)
     init_script_path = init_script_fp.name
     init_script_xml = build_initialize_xml(jsb_config)
     init_script_fp.write(init_script_xml)
@@ -170,10 +174,10 @@ def make_and_load_jsb_scripts(jsbfdm: jsbsim.FGFDMExec, jsb_config: JsbConfig):
     init_script_fp.close()
 
     # Create vehicle script
-    veh_script_fp = tempfile.NamedTemporaryFile('w', suffix='.xml', delete=False)
+    veh_script_fp = tempfile.NamedTemporaryFile("w", suffix=".xml", delete=False)
     veh_script_path = veh_script_fp.name
     veh_script_xml = build_vehicle_xml(jsb_config, init_script_path)
-    print(f'Full vehicle script @ {veh_script_path}:\n{veh_script_xml}')
+    print(f"Full vehicle script @ {veh_script_path}:\n{veh_script_xml}")
     veh_script_fp.write(veh_script_xml)
     veh_script_fp.flush()
     veh_script_fp.close()  # Need to close file before it can be read. Windows issue :/
@@ -181,7 +185,7 @@ def make_and_load_jsb_scripts(jsbfdm: jsbsim.FGFDMExec, jsb_config: JsbConfig):
     # Tell JSB to load the vehicle script
     script_loaded = jsbfdm.load_script(veh_script_path)
     if not script_loaded:
-        raise FileNotFoundError(f'JSB failed to load script: {veh_script_path}')
+        raise FileNotFoundError(f"JSB failed to load script: {veh_script_path}")
 
     # cleanup
     # Can't use missing_ok, introduced in 3.8
@@ -195,7 +199,9 @@ def setup_jsbsim(jsb_config: JsbConfig) -> jsbsim.FGFDMExec:
     # Before we do anything, go through and fix the waypoints to be correct :/
     fixed_waypoints = []
     for waypoint in jsb_config.waypoints:
-        fixed_wp = Waypoint(fix_jsb_latitude(waypoint.lat_deg), waypoint.lon_deg, waypoint.alt_m)
+        fixed_wp = Waypoint(
+            fix_jsb_latitude(waypoint.lat_deg), waypoint.lon_deg, waypoint.alt_m
+        )
         fixed_waypoints.append(fixed_wp)
     jsb_config = jsb_config._replace(waypoints=fixed_waypoints)
 

@@ -1,0 +1,55 @@
+# Here are some commonly used pre-commit hooks. You can find more at:
+# <https://github.com/pre-commit/pre-commit-hooks>
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.5.0
+  hooks:
+  - id: check-ast
+  - id: check-builtin-literals
+  - id: check-case-conflict
+  - id: check-executables-have-shebangs
+  - id: check-json
+  - id: check-merge-conflict
+  - id: check-shebang-scripts-are-executable
+  - id: check-toml
+  - id: check-yaml
+  - id: debug-statements
+  - id: end-of-file-fixer
+  - id: trailing-whitespace
+- repo: https://github.com/psf/black
+  rev: 23.10.1
+  hooks:
+  - id: black
+    name: Formatting Python code (black)
+- repo: https://github.com/pycqa/isort
+  rev: 5.12.0
+  hooks:
+  - id: isort
+    args: [--profile, black]
+    name: Sort Python imports (isort)
+- repo: https://github.com/codespell-project/codespell
+  rev: v2.2.6
+  hooks:
+  - id: codespell
+    name: Fixing common spelling mistakes
+    args:
+    - --write-changes
+- repo: https://github.com/igorshubovych/markdownlint-cli
+  rev: v0.37.0
+  hooks:
+  - id: markdownlint
+    name: Fixing markdown linting errors
+    args: [--disable, MD013, --fix]
+- repo: https://github.com/MarcoGorelli/absolufy-imports
+  rev: v0.3.1
+  hooks:
+  - id: absolufy-imports
+    name: Make python imports absolute
+- repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+  rev: v2.11.0
+  hooks:
+  - id: pretty-format-yaml
+    args: [--autofix, --indent, '2']
+  - id: pretty-format-toml
+    exclude: poetry.lock
+    args: [--autofix]

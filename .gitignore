@@ -7,3 +7,4 @@ __pycache__/
 docs/build/
 docs/source/_autosummary/
 .coverage
+.venv

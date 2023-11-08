@@ -22,50 +22,50 @@ jobs:
       name: python/default
       tag: << parameters.python-version >>
     steps:
-      - checkout
-      - run:
-          name: Update Pip and Poetry
-          command: *update-pip-poetry
-      - run:
-          name: Poetry show version
-          command: poetry --version
-      - when:
+    - checkout
+    - run:
+        name: Update Pip and Poetry
+        command: *update-pip-poetry
+    - run:
+        name: Poetry show version
+        command: poetry --version
+    - when:
           # 3.10 has a problem with numpy 1.19.5, from JSBSim
           # This hack can be removed when 3.6 support is dropped
-          condition:
-            equal: [ "3.10", << parameters.python-version >> ]
-          steps:
-            - run:
-                name: Remove JSBSim
-                command: poetry remove --dev JSBSim
-            - run:
-                name: Delete JSBSim tests
-                command: rm --verbose tests/test_*JSBSim*.py
-      - run:
-          name: Poetry build
-          command: poetry build --no-ansi --no-interaction
-      - run:
-          name: Poetry install
-          command: poetry install --no-ansi --no-interaction
-      - run:
-          name: Install coverage
-          command: pip install -U coverage coveralls
-      - run:
-          name: Run pytest
-          command: poetry run coverage run -m pytest tests/
-      - run:
-          name: Coveralls
-          command: coveralls
-      - when:
-          condition:
-            equal: [ "3.6", << parameters.python-version >> ]
-          steps:
-            - store_artifacts:
-                path: dist
-            - persist_to_workspace:
-                root: .
-                paths:
-                  - dist
+        condition:
+          equal: ['3.10', << parameters.python-version >>]
+        steps:
+        - run:
+            name: Remove JSBSim
+            command: poetry remove --dev JSBSim
+        - run:
+            name: Delete JSBSim tests
+            command: rm --verbose tests/test_*JSBSim*.py
+    - run:
+        name: Poetry build
+        command: poetry build --no-ansi --no-interaction
+    - run:
+        name: Poetry install
+        command: poetry install --no-ansi --no-interaction
+    - run:
+        name: Install coverage
+        command: pip install -U coverage coveralls
+    - run:
+        name: Run pytest
+        command: poetry run coverage run -m pytest tests/
+    - run:
+        name: Coveralls
+        command: coveralls
+    - when:
+        condition:
+          equal: ['3.6', << parameters.python-version >>]
+        steps:
+        - store_artifacts:
+            path: dist
+        - persist_to_workspace:
+            root: .
+            paths:
+            - dist
 
   # OMG why does windows on circleci suck so much :////
   build_install_test_windows:
@@ -76,139 +76,139 @@ jobs:
       name: windows/default
       shell: powershell.exe
     steps:
-      - checkout
-      - run:
-          name: Uninstall python
-          command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            RefreshEnv
-            choco uninstall python --yes
-            RefreshEnv
-            choco uninstall python3 --yes
-            Get-ChildItem -Path "C:/"
-            $py_sys_location = "C:/Python311"
-            If (Test-Path $py_sys_location) {
-              Remove-Item -Recurse -Force $py_sys_location
-            }
-            else {
-              Write-Host "$py_sys_location not found"
-            }
-      - run:
-          name: Install pyenv-win
-          command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            choco install pyenv-win --yes
-            RefreshEnv
-            pyenv install -l
-      - run:
-          name: Install Python
-          command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            RefreshEnv
-            pyenv install << parameters.python-version >>
-            RefreshEnv
-            pyenv global << parameters.python-version >>
-            RefreshEnv
-            pyenv version
-            python -c "import sys; print(sys.executable)"
-            python --version
-      - run:
-          name: Update Pip
-          command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            RefreshEnv
-            python -m pip install -U pip
-      - run:
-          name: Install Poetry
-          command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            RefreshEnv
-            python -m pip install -U poetry==1.1.15
-            RefreshEnv
-            # Work around broken urllib3 dependency from poetry 1.1.15
-            python -m pip install --upgrade urllib3==1.26.12
-      - when:
+    - checkout
+    - run:
+        name: Uninstall python
+        command: |
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+          RefreshEnv
+          choco uninstall python --yes
+          RefreshEnv
+          choco uninstall python3 --yes
+          Get-ChildItem -Path "C:/"
+          $py_sys_location = "C:/Python311"
+          If (Test-Path $py_sys_location) {
+            Remove-Item -Recurse -Force $py_sys_location
+          }
+          else {
+            Write-Host "$py_sys_location not found"
+          }
+    - run:
+        name: Install pyenv-win
+        command: |
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+          choco install pyenv-win --yes
+          RefreshEnv
+          pyenv install -l
+    - run:
+        name: Install Python
+        command: |
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+          RefreshEnv
+          pyenv install << parameters.python-version >>
+          RefreshEnv
+          pyenv global << parameters.python-version >>
+          RefreshEnv
+          pyenv version
+          python -c "import sys; print(sys.executable)"
+          python --version
+    - run:
+        name: Update Pip
+        command: |
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+          RefreshEnv
+          python -m pip install -U pip
+    - run:
+        name: Install Poetry
+        command: |
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+          RefreshEnv
+          python -m pip install -U poetry==1.1.15
+          RefreshEnv
+          # Work around broken urllib3 dependency from poetry 1.1.15
+          python -m pip install --upgrade urllib3==1.26.12
+    - when:
           # 3.10 has a problem with numpy 1.19.5, from JSBSim
           # This hack can be removed when 3.6 support is dropped
-          condition:
-            equal: [ "3.10.5", << parameters.python-version >> ]
-          steps:
-            - run:
-                name: Remove JSBSim and sh
-                command: |
-                  Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-                  RefreshEnv
-                  python -m poetry remove --dev JSBSim sh
-            - run:
-                name: Delete JSBSim tests
-                command: remove-item "tests/test_*JSBSim*.py"
-      - when:
-          condition:
+        condition:
+          equal: [3.10.5, << parameters.python-version >>]
+        steps:
+        - run:
+            name: Remove JSBSim and sh
+            command: |
+              Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+              RefreshEnv
+              python -m poetry remove --dev JSBSim sh
+        - run:
+            name: Delete JSBSim tests
+            command: remove-item "tests/test_*JSBSim*.py"
+    - when:
+        condition:
             # omg wtf circleci. No "else"?
-            and:
-              - not:
-                  equal: [ "3.10.5", << parameters.python-version >> ]
-          steps:
-            - run:
-                name: Poetry remove sh
-                command: |
-                  Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-                  RefreshEnv
-                  python -m poetry remove --dev sh
-      - run:
-          name: Poetry build
-          command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            RefreshEnv
-            python -m poetry build --no-ansi --no-interaction
-      - run:
-          name: Poetry install
-          command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            RefreshEnv
-            python -m poetry install --no-ansi --no-interaction
-      - run:
-          name: Install coverage
-          command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            RefreshEnv
-            python -m pip install -U coverage
-      - run:
-          name: Run pytest
-          command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            RefreshEnv
-            python -m poetry run coverage run -m pytest tests/
+          and:
+          - not:
+              equal: [3.10.5, << parameters.python-version >>]
+        steps:
+        - run:
+            name: Poetry remove sh
+            command: |
+              Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+              RefreshEnv
+              python -m poetry remove --dev sh
+    - run:
+        name: Poetry build
+        command: |
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+          RefreshEnv
+          python -m poetry build --no-ansi --no-interaction
+    - run:
+        name: Poetry install
+        command: |
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+          RefreshEnv
+          python -m poetry install --no-ansi --no-interaction
+    - run:
+        name: Install coverage
+        command: |
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+          RefreshEnv
+          python -m pip install -U coverage
+    - run:
+        name: Run pytest
+        command: |
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+          RefreshEnv
+          python -m poetry run coverage run -m pytest tests/
 
   poetry_publish:
     executor:
       name: python/default
-      tag: "3.6"
+      tag: '3.6'
     steps:
-      - checkout
-      - run:
-          name: Update Pip and Poetry
-          command: *update-pip-poetry
-      - run:
-          name: Poetry show version
-          command: poetry --version
-      - attach_workspace:
-          at: .
-      - run:
-          name: Poetry publish
-          command: poetry publish -vv --no-ansi --no-interaction --username __token__ --password ${FLIGHTGEAR_PYPI_TOKEN}
+    - checkout
+    - run:
+        name: Update Pip and Poetry
+        command: *update-pip-poetry
+    - run:
+        name: Poetry show version
+        command: poetry --version
+    - attach_workspace:
+        at: .
+    - run:
+        name: Poetry publish
+        command: poetry publish -vv --no-ansi --no-interaction --username __token__ --password ${FLIGHTGEAR_PYPI_TOKEN}
 
   github_publish:
     docker:
-      - image: cibuilds/github:0.13.0
+    - image: cibuilds/github:0.13.0
     steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: Publish GitHub release
-          command: |
-            VERSION=$(echo ./dist/*.whl | cut -d- -f2)
-            ghr -token ${GITHUB_PAT} -username ${CIRCLE_PROJECT_USERNAME} -repository ${CIRCLE_PROJECT_REPONAME} -commitish ${CIRCLE_SHA1} -parallel 1 -b "Automatic release ${VERSION}" ${VERSION} ./dist
+    - attach_workspace:
+        at: .
+    - run:
+        name: Publish GitHub release
+        command: |
+          VERSION=$(echo ./dist/*.whl | cut -d- -f2)
+          ghr -token ${GITHUB_PAT} -username ${CIRCLE_PROJECT_USERNAME} -repository ${CIRCLE_PROJECT_REPONAME} -commitish ${CIRCLE_SHA1} -parallel 1 -b "Automatic release ${VERSION}" ${VERSION} ./dist
 
 tag-filter: &tag-filter
   filters:
@@ -220,28 +220,28 @@ tag-filter: &tag-filter
 workflows:
   main-workflow:
     jobs:
-      - build_install_test_windows:
-          matrix:
-            parameters:
+    - build_install_test_windows:
+        matrix:
+          parameters:
               #python-version: ["3.6.8", "3.7.9", "3.8.10", "3.9.13", "3.10.5"]
-              python-version: ["3.8.10"]
-          filters:  # required since `deploy` has tag filters AND requires `build`
-            tags:
-              only: /.*/
-      - build_install_test:
-          matrix:
-            parameters:
-              python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
-          filters:  # required since `deploy` has tag filters AND requires `build`
-            tags:
-              only: /.*/
-      - poetry_publish:
-          requires:
-            - build_install_test
-            - build_install_test_windows
-          <<: *tag-filter
-      - github_publish:
-          requires:
-            - build_install_test
-            - build_install_test_windows
-          <<: *tag-filter
+            python-version: [3.8.10]
+        filters:    # required since `deploy` has tag filters AND requires `build`
+          tags:
+            only: /.*/
+    - build_install_test:
+        matrix:
+          parameters:
+            python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
+        filters:    # required since `deploy` has tag filters AND requires `build`
+          tags:
+            only: /.*/
+    - poetry_publish:
+        requires:
+        - build_install_test
+        - build_install_test_windows
+        <<: *tag-filter
+    - github_publish:
+        requires:
+        - build_install_test
+        - build_install_test_windows
+        <<: *tag-filter

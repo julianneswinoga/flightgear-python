@@ -1,4 +1,5 @@
 # FlightGear Python Interface
+
 [![Documentation Status](https://readthedocs.org/projects/flightgear-python/badge/?version=latest)](https://flightgear-python.readthedocs.io/en/latest/?badge=latest)
 [![CircleCI](https://circleci.com/gh/julianneswinoga/flightgear-python.svg?style=shield)](https://circleci.com/gh/julianneswinoga/flightgear-python)
 [![Coverage Status](https://coveralls.io/repos/github/julianneswinoga/flightgear-python/badge.svg?branch=master)](https://coveralls.io/github/julianneswinoga/flightgear-python?branch=master)
@@ -12,6 +13,7 @@ Install: `pip3 install flightgear-python`
 Don't know where to begin? Check out the [quick-start](https://flightgear-python.readthedocs.io/en/latest/quickstart.html) documentation.
 
 FDM example, from `examples/simple_fdm.py`
+
 ```python
 """
 Simple Flight Dynamics Model (FDM) example that makes the altitude increase and the plane roll in the air.
@@ -37,7 +39,7 @@ if __name__ == '__main__':  # NOTE: This is REQUIRED on Windows!
     fdm_event_pipe = fdm_conn.connect_rx('localhost', 5501, fdm_callback)
     fdm_conn.connect_tx('localhost', 5502)
     fdm_conn.start()  # Start the FDM RX/TX loop
-    
+
     phi_rad_parent = 0.0
     while True:
         phi_rad_parent += 0.1
@@ -47,6 +49,7 @@ if __name__ == '__main__':  # NOTE: This is REQUIRED on Windows!
 ```
 
 Supported interfaces:
+
 - [x] [Native Protocol](https://wiki.flightgear.org/Property_Tree/Sockets) (currently only UDP)
   - [x] Flight Dynamics Model ([`net_fdm.hxx`](https://github.com/FlightGear/flightgear/blob/next/src/Network/net_fdm.hxx))
   - [x] Controls ([`net_ctrls.hxx`](https://github.com/FlightGear/flightgear/blob/next/src/Network/net_ctrls.hxx))

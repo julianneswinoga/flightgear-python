@@ -1,8 +1,9 @@
 """
 non-FlightGear-specific utility functionality
 """
+from typing import Any, ByteString, Union
+
 import multiprocess as mp
-from typing import Any, Union, ByteString
 
 
 class EventPipe:
@@ -54,7 +55,9 @@ class EventPipe:
         return msg
 
 
-def strip_end(text: Union[str, ByteString], suffix: Union[str, ByteString]) -> Union[str, ByteString]:
+def strip_end(
+    text: Union[str, ByteString], suffix: Union[str, ByteString]
+) -> Union[str, ByteString]:
     """
     This could be removed if we want to move lowest supported version to 3.9 (.removesuffix())
     sphinx-no-autodoc
@@ -64,5 +67,5 @@ def strip_end(text: Union[str, ByteString], suffix: Union[str, ByteString]) -> U
     :return: text with suffix removed
     """
     if suffix and text.endswith(suffix):
-        return text[:-len(suffix)]
+        return text[: -len(suffix)]
     return text

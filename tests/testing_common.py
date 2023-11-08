@@ -1,10 +1,16 @@
 import os
 from pathlib import Path
 
-
-supported_fdm_versions = [24, 25, ]
-supported_ctrls_versions = [27, ]
-supported_gui_versions = [8, ]
+supported_fdm_versions = [
+    24,
+    25,
+]
+supported_ctrls_versions = [
+    27,
+]
+supported_gui_versions = [
+    8,
+]
 
 
 project_dir = os.path.abspath(os.path.dirname(__file__))
@@ -12,7 +18,7 @@ project_dir = os.path.abspath(os.path.dirname(__file__))
 
 def fill_xml_template(template_relative_path: str, **kwargs) -> str:
     template_full_path = Path(project_dir, template_relative_path).resolve()
-    with open(template_full_path, 'r') as xml_fp:
+    with open(template_full_path) as xml_fp:
         xml_template_str = xml_fp.read()
     xml_filled = xml_template_str.format(**kwargs)
     return xml_filled
