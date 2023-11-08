@@ -21,6 +21,7 @@ requests = "2.27.1"
 GitPython = "==3.1.20"
 JSBSim = "==1.1.11"
 # Following are pegged at the latest version that supports Python 3.6
+pre-commit = "==2.1.1"
 pytest = "==7.0.1"
 pytest-cov = "^3.0.0"
 pytest-mock = "==3.6.1"
