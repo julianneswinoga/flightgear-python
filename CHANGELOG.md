@@ -1,3 +1,12 @@
+#### [1.4.0](https://github.com/julianneswinoga/flightgear-python/compare/1.3.0...1.4.0)
+
+> 19 November 2023
+
+- Add HTTP client [`110561a`](https://github.com/julianneswinoga/flightgear-python/commit/110561aaa108d713e8348e0583e74e72c3fb96e6) (thanks @juhannc !)
+- Fix poetry.lock to support old poetry version [`39874a5`](https://github.com/julianneswinoga/flightgear-python/commit/39874a58ca3909e25d45bfadd7fcd5e86d8c146c)
+- Add simple_http to examples and check README [`0932606`](https://github.com/julianneswinoga/flightgear-python/commit/09326066585f640b1dbc52d899afd599ba2e0db4)
+- Require Windows build to succeed to publish packages [`7c1d344`](https://github.com/julianneswinoga/flightgear-python/commit/7c1d344f967a96c2350582c3fe371c43e2418106)
+
 #### [1.3.0](https://github.com/julianneswinoga/flightgear-python/compare/1.2.2...1.3.0)
 
 > 4 June 2023
