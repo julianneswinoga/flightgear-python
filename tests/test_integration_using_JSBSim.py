@@ -1,6 +1,7 @@
 import math
 
 from flightgear_python.fg_if import FDMConnection
+
 # from testing_common import supported_fdm_versions
 from jsbsim_wrapper.jsbsim_wrapper import FlightGearUdpOutput, JsbConfig, Waypoint, setup_jsbsim
 
@@ -12,7 +13,11 @@ supported_fdm_versions = [24]
 
 
 def fdm_callback(fdm_data, event_pipe):
-    child_data = (fdm_data['lat_rad'], fdm_data['lon_rad'], fdm_data['alt_m'],)
+    child_data = (
+        fdm_data['lat_rad'],
+        fdm_data['lon_rad'],
+        fdm_data['alt_m'],
+    )
     print('Callback!', child_data)
     event_pipe.child_send(child_data)
 

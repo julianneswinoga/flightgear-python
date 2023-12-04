@@ -40,9 +40,14 @@ def setup_fdm_mock(mocker, version: int, struct_length: int):
 @pytest.mark.parametrize('fdm_version', supported_fdm_versions)
 def test_fdm_rx_and_tx(mocker, fdm_version):
     def rx_cb(fdm_data, event_pipe):
-        run_idx, = event_pipe.child_recv()
+        (run_idx,) = event_pipe.child_recv()
         callback_version = fdm_data['version']
-        event_pipe.child_send((run_idx, callback_version,))
+        event_pipe.child_send(
+            (
+                run_idx,
+                callback_version,
+            )
+        )
         return fdm_data
 
     fdm_c = FDMConnection(fdm_version)
@@ -76,5 +81,5 @@ def test_fdm_only_rx(mocker, fdm_version):
     for i in range(5):
         # manually call the process instead of having the process spawn
         fdm_c._fg_packet_roundtrip()
-        callback_version, = fdm_c.event_pipe.parent_recv()
+        (callback_version,) = fdm_c.event_pipe.parent_recv()
         assert callback_version == fdm_version

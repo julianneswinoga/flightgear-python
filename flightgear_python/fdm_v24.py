@@ -41,9 +41,7 @@ fdm_struct = {
     'stall_warning': Float32b,  # 0.0 - 1.0 indicating the amount of stall
     'slip_deg': Float32b,  # slip ball deflection
     'num_engines': Int32ub,
-    'eng_state': Array(FG_MAX_ENGINES,
-                       Enum(Int32ub, off=0, cranking=1, running=2)
-                       ),  # Engine state
+    'eng_state': Array(FG_MAX_ENGINES, Enum(Int32ub, off=0, cranking=1, running=2)),  # Engine state
     'rpm': Array(FG_MAX_ENGINES, Float32b),
     'fuel_flow_gal_per_hr': Array(FG_MAX_ENGINES, Float32b),
     'fuel_px_psi': Array(FG_MAX_ENGINES, Float32b),

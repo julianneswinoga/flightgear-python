@@ -10,6 +10,7 @@ class FGConnectionError(Exception):
     """
     Error type generated when there is an error connecting to FlightGear
     """
+
     pass
 
 
@@ -17,6 +18,7 @@ class FGCommunicationError(Exception):
     """
     Error type generated when there is an error talking to FlightGear
     """
+
     pass
 
 

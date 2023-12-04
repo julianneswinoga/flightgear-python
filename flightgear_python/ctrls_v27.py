@@ -32,17 +32,13 @@ ctrls_struct = {
     'master_bat': Array(FG_MAX_ENGINES, Enum(Int32ub, off=0, on=1)),
     'master_alt': Array(FG_MAX_ENGINES, Enum(Int32ub, off=0, on=1)),
     'magnetos': Array(FG_MAX_ENGINES, Int32ub),
-    'starter_power': Array(FG_MAX_ENGINES,
-                           Enum(Int32ub, off=0, on=1)
-                           ),
+    'starter_power': Array(FG_MAX_ENGINES, Enum(Int32ub, off=0, on=1)),
     # throttle needs to be moved forward 1 double?
     '_padding3': Bytes(4),  # TODO: Not documented, probably due to struct packing
     'throttle': Array(FG_MAX_ENGINES, Float64b),  # 0 ... 1
     'mixture': Array(FG_MAX_ENGINES, Float64b),  # 0 ... 1
     'condition': Array(FG_MAX_ENGINES, Float64b),  # 0 ... 1
-    'fuel_pump_power': Array(FG_MAX_ENGINES,
-                             Enum(Int32ub, off=0, on=1)
-                             ),
+    'fuel_pump_power': Array(FG_MAX_ENGINES, Enum(Int32ub, off=0, on=1)),
     'prop_advance': Array(FG_MAX_ENGINES, Float64b),  # 0 ... 1
     'feed_tank_to': Array(4, Int32ub),
     'reverse': Array(4, Int32ub),
@@ -50,9 +46,7 @@ ctrls_struct = {
     'mag_left_ok': Array(FG_MAX_ENGINES, Int32ub),
     'mag_right_ok': Array(FG_MAX_ENGINES, Int32ub),
     'spark_plugs_ok': Array(FG_MAX_ENGINES, Enum(Int32ub, fouled=0, ok=1)),
-    'oil_press_status': Array(FG_MAX_ENGINES,
-                              Enum(Int32ub, normal=0, low=1, full_fail=2)
-                              ),
+    'oil_press_status': Array(FG_MAX_ENGINES, Enum(Int32ub, normal=0, low=1, full_fail=2)),
     'fuel_pump_ok': Array(FG_MAX_ENGINES, Int32ub),
     'num_tanks': Int32ub,
     'fuel_selector': Array(FG_MAX_TANKS, Enum(Int32ub, off=0, on=1)),
