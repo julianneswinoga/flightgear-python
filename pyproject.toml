@@ -11,7 +11,7 @@ readme = "README.md"
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.6.2"
 construct = "^2.10"
 # Following are pegged at the latest version that supports Python 3.6
 multiprocess = "==0.70.12.2"
@@ -28,8 +28,13 @@ pytest = "==7.0.1"
 GitPython = "==3.1.20"
 pytest-mock = "==3.6.1"
 JSBSim = "==1.1.11"
+black = "==22.8.0"
 
 [tool.poetry.urls]
 "Repository" = "https://github.com/julianneswinoga/flightgear-python"
 "Documentation" = "https://flightgear-python.readthedocs.io/en/latest"
 "Bug Tracker" = "https://github.com/julianneswinoga/flightgear-python/issues"
+
+[tool.black]
+line-length = 120
+skip-string-normalization = true
