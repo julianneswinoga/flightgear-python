@@ -14,6 +14,25 @@ update-pip-poetry: &update-pip-poetry |-
   # Don't put more poetry commands here, they'll use the old version for some reason
 
 jobs:
+  lint:
+    executor:
+      name: python/default
+      tag: "3.6"
+    steps:
+      - checkout
+      - run:
+          name: Update Pip and Poetry
+          command: *update-pip-poetry
+      - run:
+          name: Poetry show version
+          command: poetry --version
+      - run:
+          name: Poetry install
+          command: poetry install --no-ansi --no-interaction
+      - run:
+          name: Run black
+          command: poetry run black --no-color flightgear_python/ scripts/ tests/
+
   build_install_test:
     parameters:
       python-version:
@@ -220,6 +239,10 @@ tag-filter: &tag-filter
 workflows:
   main-workflow:
     jobs:
+      - lint:
+          filters:  # required since `deploy` has tag filters AND requires `build`
+            tags:
+              only: /.*/
       - build_install_test_windows:
           matrix:
             parameters:
@@ -237,11 +260,13 @@ workflows:
               only: /.*/
       - poetry_publish:
           requires:
+            - lint
             - build_install_test
             - build_install_test_windows
           <<: *tag-filter
       - github_publish:
           requires:
+            - lint
             - build_install_test
             - build_install_test_windows
           <<: *tag-filter
