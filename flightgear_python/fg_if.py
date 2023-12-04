@@ -30,6 +30,7 @@ class FGConnection:
     Base class for FlightGear connections
     sphinx-no-autodoc
     """
+
     fg_net_struct: Optional[Struct] = None
 
     def __init__(self, rx_timeout_s: float = 2.0):

@@ -64,5 +64,5 @@ def strip_end(text: Union[str, ByteString], suffix: Union[str, ByteString]) -> U
     :return: text with suffix removed
     """
     if suffix and text.endswith(suffix):
-        return text[:-len(suffix)]
+        return text[: -len(suffix)]
     return text

@@ -2,9 +2,16 @@ import os
 from pathlib import Path
 
 
-supported_fdm_versions = [24, 25, ]
-supported_ctrls_versions = [27, ]
-supported_gui_versions = [8, ]
+supported_fdm_versions = [
+    24,
+    25,
+]
+supported_ctrls_versions = [
+    27,
+]
+supported_gui_versions = [
+    8,
+]
 
 
 project_dir = os.path.abspath(os.path.dirname(__file__))

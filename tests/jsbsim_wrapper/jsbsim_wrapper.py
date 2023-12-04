@@ -119,7 +119,8 @@ def build_wp_xml(wp_list: List[Waypoint], wp_distance_thresh: float) -> str:
             'jsbsim_wrapper/xml_templates/jsb_single_wp.xml',
             wp_idx=wp_idx,
             conditions=conditions,
-            lat_rad=math.radians(waypoint_data.lat_deg), lon_rad=math.radians(waypoint_data.lon_deg),
+            lat_rad=math.radians(waypoint_data.lat_deg),
+            lon_rad=math.radians(waypoint_data.lon_deg),
             alt_ft=m_to_ft(waypoint_data.alt_m),
         )
     return wp_xml
@@ -129,7 +130,10 @@ def build_initialize_xml(jsb_config: JsbConfig) -> str:
     # Take the starting location from the last waypoint
     start_lat_deg, start_lon_deg, start_alt_m = jsb_config.waypoints[-1]
     init_script_xml = fill_xml_template(
-        'jsbsim_wrapper/xml_templates/jsb_initialize_vehicle.xml', lat_deg=start_lat_deg, lon_deg=start_lon_deg, alt_m=start_alt_m
+        'jsbsim_wrapper/xml_templates/jsb_initialize_vehicle.xml',
+        lat_deg=start_lat_deg,
+        lon_deg=start_lon_deg,
+        alt_m=start_alt_m,
     )
     return init_script_xml
 
