@@ -65,6 +65,10 @@ def test_fdm_rx_and_tx(mocker, fdm_version):
         assert run_idx == i
         assert callback_version == fdm_version
 
+    # Prevent 'ResourceWarning: unclosed' warning
+    fdm_c.fg_rx_sock.close()
+    fdm_c.fg_tx_sock.close()
+
 
 @pytest.mark.parametrize('fdm_version', supported_fdm_versions)
 def test_fdm_only_rx(mocker, fdm_version):
@@ -83,3 +87,6 @@ def test_fdm_only_rx(mocker, fdm_version):
         fdm_c._fg_packet_roundtrip()
         (callback_version,) = fdm_c.event_pipe.parent_recv()
         assert callback_version == fdm_version
+
+    # Prevent 'ResourceWarning: unclosed' warning
+    fdm_c.fg_rx_sock.close()
