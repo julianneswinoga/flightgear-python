@@ -3,7 +3,7 @@
 [![CircleCI](https://circleci.com/gh/julianneswinoga/flightgear-python.svg?style=shield)](https://circleci.com/gh/julianneswinoga/flightgear-python)
 [![Coverage Status](https://coveralls.io/repos/github/julianneswinoga/flightgear-python/badge.svg?branch=master)](https://coveralls.io/github/julianneswinoga/flightgear-python?branch=master)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/flightgear_python)](https://pypi.org/project/flightgear-python/)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/flightgear-python)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/flightgear-python)](https://pypistats.org/packages/flightgear-python)
 
 `flightgear-python` is an interface package to the [FlightGear flight simulation software](https://www.flightgear.org/) aimed at simplicity.
 
