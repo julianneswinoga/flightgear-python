@@ -13,6 +13,14 @@ if [ "$1" = 'clean' ]; then
   pip3 install -U Cython
   poetry update -vvv
 fi
+
+# Remove clean from args
+for arg in "$@"; do
+  shift
+  [ "$arg" = "clean" ] && continue
+  set -- "$@" "$arg"
+done
+
 poetry build
 poetry install
-pytest --cov-report term-missing:skip-covered --cov=flightgear_python tests/
+pytest --cov-report term-missing:skip-covered --cov=flightgear_python tests/ "$@"
