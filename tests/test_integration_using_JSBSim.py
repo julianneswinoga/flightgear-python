@@ -62,6 +62,9 @@ def test_jsbsim_integration(fdm_version, capsys):
 
     fdm_conn.stop()
 
+    # Prevent 'ResourceWarning: unclosed' warning
+    fdm_conn.fg_rx_sock.close()
+
     # Make sure we got at least half of the updates
     total_updates = len(pos_history)
     assert total_updates > (total_sim_steps / 2)

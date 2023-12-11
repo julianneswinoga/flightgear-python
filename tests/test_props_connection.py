@@ -28,3 +28,5 @@ def test_props_round_trip(mocker):
     p_con = PropsConnection('localhost', 55554)
     resp = p_con._send_cmd_get_resp(cmd)
     assert ('A' * 512) in resp
+    # Prevent 'ResourceWarning: unclosed' warning
+    p_con.sock.close()
