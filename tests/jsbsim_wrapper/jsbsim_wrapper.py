@@ -1,6 +1,5 @@
 import math
 import tempfile
-import time
 from typing import List, NamedTuple
 from pathlib import Path
 
@@ -51,7 +50,8 @@ def fix_jsb_latitude(lat_deg: float) -> float:
             for requested_lon in frange(0, 1, 1):
                 jsbfdm = jsbsim.FGFDMExec(None)  # Use JSBSim default aircraft data
                 jsbfdm.set_debug_level(0)
-                init_script_xml = fill_xml_template('jsbsim_wrapper/xml_templates/jsb_initialize_vehicle.xml', lat_deg=fix_jsb_latitude(requested_lat), lon_deg=requested_lon, alt_m=1000)
+                init_script_xml = fill_xml_template('jsbsim_wrapper/xml_templates/jsb_initialize_vehicle.xml',
+                    lat_deg=fix_jsb_latitude(requested_lat), lon_deg=requested_lon, alt_m=1000)
                 wp_xml = build_wp_xml([], 100)
                 with tempfile.NamedTemporaryFile('w', suffix='.xml') as initialize_fp:
                     initialize_fp.write(init_script_xml)
@@ -79,7 +79,8 @@ def fix_jsb_latitude(lat_deg: float) -> float:
 
                 kml.newpoint(name=f'{idx}a', coords=[from_loc], altitudemode=simplekml.AltitudeMode.clamptoground)
                 kml.newpoint(name=f'{idx}b', coords=[to_loc], altitudemode=simplekml.AltitudeMode.clamptoground)
-                kml.newlinestring(name=str(idx), coords=[from_loc, to_loc], altitudemode=simplekml.AltitudeMode.clamptoground)
+                kml.newlinestring(name=str(idx), coords=[from_loc, to_loc],
+                    altitudemode=simplekml.AltitudeMode.clamptoground)
 
                 lat_diffs.append(requested_lat - actual_lat)
                 lon_diffs.append(requested_lon - actual_lon)

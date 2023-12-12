@@ -41,3 +41,9 @@ flake8 = "==5.0.4"
 [tool.black]
 line-length = 120
 skip-string-normalization = true
+
+[tool.flake8]
+max-line-length = 120
+ignore = [
+    'E731',
+]
