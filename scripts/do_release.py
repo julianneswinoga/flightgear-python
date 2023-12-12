@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import logging
+import sys
 import signal
 import inspect
 from collections import namedtuple
@@ -196,7 +198,7 @@ def main():
         print(f'\t{item}')
 
     git_amend_action = named_action(
-        f'Amend all changes to latest commit', lambda: git_info['repo'].git.commit('--all', '--amend', '--no-edit')
+        'Amend all changes to latest commit', lambda: git_info['repo'].git.commit('--all', '--amend', '--no-edit')
     )
     actions.append(git_amend_action)
     if not apply_actions(actions):
@@ -218,12 +220,10 @@ def main():
         clean_exit(0)
 
     print_action_history('\r\nRan the following actions:')
-    print(f'\r\nYou should now run `git push origin master && git push origin $(git describe)`')
+    print('\r\nYou should now run `git push origin master && git push origin $(git describe)`')
 
 
 if __name__ == '__main__':
-    import logging, sys
-
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
     signal.signal(signal.SIGINT, handler_stop_signals)
