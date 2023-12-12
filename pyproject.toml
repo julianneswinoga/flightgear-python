@@ -18,18 +18,20 @@ multiprocess = "==0.70.12.2"
 requests = "==2.27.1"
 
 [tool.poetry.dev-dependencies]
-sphinx = "^5.1.1"
+sphinx = "==4.3.2"  # Supports 3.6, and doesn't depend on importlib-metadata (conflict with flake8)
 sphinx_mdinclude = "^0.5.2"
 sphinx-rtd-theme = "^0.5.2"  # Can't `poetry update` with 1.0.0?
 sh = "^1.14.3"
 pytest-cov = "^3.0.0"
 requests-mock = "^1.11.0"
+Flake8-pyproject = "^1.2.3"
 # Following are pegged at the latest version that supports Python 3.6
 pytest = "==7.0.1"
 GitPython = "==3.1.20"
 pytest-mock = "==3.6.1"
 JSBSim = "==1.1.11"
 black = "==22.8.0"
+flake8 = "==5.0.4"
 
 [tool.poetry.urls]
 "Repository" = "https://github.com/julianneswinoga/flightgear-python"
