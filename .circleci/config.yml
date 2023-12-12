@@ -74,7 +74,14 @@ jobs:
           command: poetry run coverage run -m pytest tests/
       - run:
           name: Coveralls
-          command: coveralls
+          command: |
+            # Environment variables are not set when running from a forked PR
+            # coveralls isn't required for PRs anyways
+            if [ -n "$COVERALLS_REPO_TOKEN" ]; then
+              coveralls
+            else
+              echo "COVERALLS_REPO_TOKEN not set, skipping"
+            fi
       - when:
           condition:
             equal: [ "3.6", << parameters.python-version >> ]
