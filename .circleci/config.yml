@@ -26,9 +26,15 @@ jobs:
       - run:
           name: Poetry show version
           command: poetry --version
+      - restore_cache:
+          key: &poetry-linux-cache poetry-cache-{{ arch }}-<< parameters.python-version >>-{{ .Branch }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "poetry.lock" }}
       - run:
           name: Poetry install
           command: poetry install --no-ansi --no-interaction
+      - save_cache:
+          key: *poetry-linux-cache
+          paths:
+            - "/home/circleci/.cache/pypoetry/virtualenvs"
       - run:
           name: Run black
           command: poetry run black --no-color flightgear_python/ scripts/ tests/
@@ -58,14 +64,17 @@ jobs:
             equal: [ "3.10", << parameters.python-version >> ]
           steps:
             - run:
-                name: Remove JSBSim
-                command: poetry remove --dev JSBSim
-            - run:
                 name: Delete JSBSim tests
                 command: rm --verbose tests/test_*JSBSim*.py
+      - restore_cache:
+          key: &poetry-linux-cache poetry-cache-{{ arch }}-<< parameters.python-version >>-{{ .Branch }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "poetry.lock" }}
       - run:
           name: Poetry install
           command: poetry install --no-ansi --no-interaction
+      - save_cache:
+          key: *poetry-linux-cache
+          paths:
+            - "/home/circleci/.cache/pypoetry/virtualenvs"
       - run:
           name: Poetry build
           command: poetry build --no-ansi --no-interaction
