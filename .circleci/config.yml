@@ -96,6 +96,31 @@ jobs:
                 paths:
                   - dist
 
+  integration_test:
+    parameters:
+      python-version:
+        type: string
+    executor:
+      name: python/default
+      tag: << parameters.python-version >>
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: |
+            sudo apt update
+            sudo apt install -y --no-install-recommends \
+            psmisc socat \
+            libx11-xcb1 libgl1 libxcb-xinerama0 libqt5gui5 xvfb dbus-x11
+      - run:
+          name: Start Xvfb
+          command: |
+            Xvfb :1 -screen 0 1280x1024x24 -fbdir /var/tmp &
+            DISPLAY=:1 dbus-launch
+      - run:
+          name: One-click full integration
+          command: DISPLAY=:1 scripts/fg_full_integration_test.sh
+
   # OMG why does windows on circleci suck so much :////
   build_install_test_windows:
     parameters:
@@ -209,6 +234,7 @@ jobs:
             RefreshEnv
             python -m poetry run coverage run -m pytest tests/
 
+
   poetry_publish:
     executor:
       name: python/default
@@ -239,6 +265,11 @@ jobs:
             VERSION=$(echo ./dist/*.whl | cut -d- -f2)
             ghr -token ${GITHUB_PAT} -username ${CIRCLE_PROJECT_USERNAME} -repository ${CIRCLE_PROJECT_REPONAME} -commitish ${CIRCLE_SHA1} -parallel 1 -b "Automatic release ${VERSION}" ${VERSION} ./dist
 
+everything-filter: &everything-filter
+  filters:
+    tags:
+      only: /.*/
+
 tag-filter: &tag-filter
   filters:
     tags:
@@ -250,33 +281,34 @@ workflows:
   main-workflow:
     jobs:
       - lint:
-          filters:  # required since `deploy` has tag filters AND requires `build`
-            tags:
-              only: /.*/
+          <<: *everything-filter # required since `deploy` has tag filters AND requires `build`
       - build_install_test_windows:
           matrix:
             parameters:
               #python-version: ["3.6.8", "3.7.9", "3.8.10", "3.9.13", "3.10.5"]
               python-version: ["3.8.10"]
-          filters:  # required since `deploy` has tag filters AND requires `build`
-            tags:
-              only: /.*/
+          <<: *everything-filter # required since `deploy` has tag filters AND requires `build`
       - build_install_test:
           matrix:
             parameters:
               python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
-          filters:  # required since `deploy` has tag filters AND requires `build`
-            tags:
-              only: /.*/
+          <<: *everything-filter # required since `deploy` has tag filters AND requires `build`
+      - integration_test:
+          matrix:
+            parameters:
+              python-version: ["3.6"]
+          <<: *everything-filter # required since `deploy` has tag filters AND requires `build`
       - poetry_publish:
           requires:
             - lint
             - build_install_test
             - build_install_test_windows
+            - integration_test
           <<: *tag-filter
       - github_publish:
           requires:
             - lint
             - build_install_test
             - build_install_test_windows
+            - integration_test
           <<: *tag-filter
