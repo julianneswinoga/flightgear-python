@@ -72,54 +72,53 @@ jobs:
       - run:
           name: Install coverage
           command: pip install -U coverage coveralls
-      - run:
-          name: Run pytest
-          command: poetry run coverage run -m pytest tests/
-      - run:
-          name: Coveralls
-          command: |
-            # Environment variables are not set when running from a forked PR
-            # coveralls isn't required for PRs anyways
-            if [ -n "$COVERALLS_REPO_TOKEN" ]; then
-              coveralls
-            else
-              echo "COVERALLS_REPO_TOKEN not set, skipping"
-            fi
       - when:
+          # Run full testing only on one version, otherwise only run unit tests
           condition:
             equal: [ "3.6", << parameters.python-version >> ]
           steps:
+            - run:
+                name: Install Integration Test Dependencies
+                command: |
+                  sudo apt update
+                  sudo apt install -y --no-install-recommends \
+                  psmisc socat \
+                  libx11-xcb1 libgl1 libxcb-xinerama0 libqt5gui5 xvfb dbus-x11
+            - run:
+                name: Start Xvfb
+                command: |
+                  Xvfb :1 -screen 0 1280x1024x24 -fbdir /var/tmp &
+                  DISPLAY=:1 dbus-launch
+            - run:
+                name: Integration Tests Script
+                command: DISPLAY=:1 scripts/fg_full_integration_test.sh
+            - run:
+                name: Coveralls
+                command: |
+                  # Environment variables are not set when running from a forked PR
+                  # coveralls isn't required for PRs anyways
+                  if [ -n "$COVERALLS_REPO_TOKEN" ]; then
+                    coveralls
+                  else
+                    echo "COVERALLS_REPO_TOKEN not set, skipping"
+                  fi
+            # Store the build files
             - store_artifacts:
                 path: dist
             - persist_to_workspace:
                 root: .
                 paths:
                   - dist
-
-  integration_test:
-    parameters:
-      python-version:
-        type: string
-    executor:
-      name: python/default
-      tag: << parameters.python-version >>
-    steps:
-      - checkout
-      - run:
-          name: Install Dependencies
-          command: |
-            sudo apt update
-            sudo apt install -y --no-install-recommends \
-            psmisc socat \
-            libx11-xcb1 libgl1 libxcb-xinerama0 libqt5gui5 xvfb dbus-x11
-      - run:
-          name: Start Xvfb
-          command: |
-            Xvfb :1 -screen 0 1280x1024x24 -fbdir /var/tmp &
-            DISPLAY=:1 dbus-launch
-      - run:
-          name: One-click full integration
-          command: DISPLAY=:1 scripts/fg_full_integration_test.sh
+      - when:
+          condition:
+            # omg wtf circleci. No "else"?
+            and:
+              - not:
+                  equal: [ "3.6", << parameters.python-version >> ]
+          steps:
+            - run:
+                name: Run pytest
+                command: poetry run coverage run -m pytest tests/
 
   # OMG why does windows on circleci suck so much :////
   build_install_test_windows:
@@ -234,7 +233,6 @@ jobs:
             RefreshEnv
             python -m poetry run coverage run -m pytest tests/
 
-
   poetry_publish:
     executor:
       name: python/default
@@ -293,22 +291,15 @@ workflows:
             parameters:
               python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
           <<: *everything-filter # required since `deploy` has tag filters AND requires `build`
-      - integration_test:
-          matrix:
-            parameters:
-              python-version: ["3.6"]
-          <<: *everything-filter # required since `deploy` has tag filters AND requires `build`
       - poetry_publish:
           requires:
             - lint
             - build_install_test
             - build_install_test_windows
-            - integration_test
           <<: *tag-filter
       - github_publish:
           requires:
             - lint
             - build_install_test
             - build_install_test_windows
-            - integration_test
           <<: *tag-filter

@@ -47,3 +47,9 @@ max-line-length = 120
 ignore = [
     'E731',
 ]
+
+[tool.pytest.ini_options]
+markers = [
+    'fg_integration: to be used with a running FlightGear instance. See scripts/fg_full_integration_test.sh (deselected by default)',
+]
+addopts = '-m "not fg_integration"'
