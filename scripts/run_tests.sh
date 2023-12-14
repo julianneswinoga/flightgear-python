@@ -21,6 +21,6 @@ for arg in "$@"; do
   set -- "$@" "$arg"
 done
 
-poetry build
 poetry install
+poetry build
 pytest --cov-report term-missing:skip-covered --cov=flightgear_python tests/ "$@"

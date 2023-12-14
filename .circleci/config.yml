@@ -64,11 +64,11 @@ jobs:
                 name: Delete JSBSim tests
                 command: rm --verbose tests/test_*JSBSim*.py
       - run:
-          name: Poetry build
-          command: poetry build --no-ansi --no-interaction
-      - run:
           name: Poetry install
           command: poetry install --no-ansi --no-interaction
+      - run:
+          name: Poetry build
+          command: poetry build --no-ansi --no-interaction
       - run:
           name: Install coverage
           command: pip install -U coverage coveralls
@@ -130,22 +130,8 @@ jobs:
       shell: powershell.exe
     steps:
       - checkout
-      - run:
-          name: Uninstall python
-          command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            RefreshEnv
-            choco uninstall python --yes
-            RefreshEnv
-            choco uninstall python3 --yes
-            Get-ChildItem -Path "C:/"
-            $py_sys_location = "C:/Python311"
-            If (Test-Path $py_sys_location) {
-              Remove-Item -Recurse -Force $py_sys_location
-            }
-            else {
-              Write-Host "$py_sys_location not found"
-            }
+      - restore_cache:
+          key: &pyenv-win-cache pyenv-cache-{{ arch }}-<< parameters.python-version >>-{{ .Branch }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "poetry.lock" }}
       - run:
           name: Install pyenv-win
           command: |
@@ -156,30 +142,24 @@ jobs:
       - run:
           name: Install Python
           command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            RefreshEnv
+            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; RefreshEnv
             pyenv install << parameters.python-version >>
-            RefreshEnv
             pyenv global << parameters.python-version >>
-            RefreshEnv
             pyenv version
-            python -c "import sys; print(sys.executable)"
-            python --version
+            pyenv exec python -c "import sys; print(sys.executable)"
+            pyenv exec python --version
       - run:
           name: Update Pip
           command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            RefreshEnv
-            python -m pip install -U pip
+            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; RefreshEnv
+            pyenv exec python -m pip install -U pip
       - run:
           name: Install Poetry
           command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            RefreshEnv
-            python -m pip install -U poetry==1.1.15
-            RefreshEnv
+            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; RefreshEnv
+            pyenv exec python -m pip install -U poetry==1.1.15
             # Work around broken urllib3 dependency from poetry 1.1.15
-            python -m pip install --upgrade urllib3==1.26.12
+            pyenv exec python -m pip install --upgrade urllib3==1.26.12
       - when:
           # 3.10 has a problem with numpy 1.19.5, from JSBSim
           # This hack can be removed when 3.6 support is dropped
@@ -187,51 +167,33 @@ jobs:
             equal: [ "3.10.5", << parameters.python-version >> ]
           steps:
             - run:
-                name: Remove JSBSim and sh
-                command: |
-                  Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-                  RefreshEnv
-                  python -m poetry remove --dev JSBSim sh
-            - run:
                 name: Delete JSBSim tests
                 command: remove-item "tests/test_*JSBSim*.py"
-      - when:
-          condition:
-            # omg wtf circleci. No "else"?
-            and:
-              - not:
-                  equal: [ "3.10.5", << parameters.python-version >> ]
-          steps:
-            - run:
-                name: Poetry remove sh
-                command: |
-                  Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-                  RefreshEnv
-                  python -m poetry remove --dev sh
-      - run:
-          name: Poetry build
-          command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            RefreshEnv
-            python -m poetry build --no-ansi --no-interaction
       - run:
           name: Poetry install
           command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            RefreshEnv
-            python -m poetry install --no-ansi --no-interaction
+            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; RefreshEnv
+            pyenv exec python -m poetry install --no-ansi --no-interaction
       - run:
           name: Install coverage
           command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            RefreshEnv
-            python -m pip install -U coverage
+            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; RefreshEnv
+            pyenv exec python -m pip install -U coverage
+      - save_cache:
+          key: *pyenv-win-cache
+          paths:
+            - "C:/Users/circleci/.pyenv"
+            - "C:/Users/circleci/AppData/Local/pypoetry/Cache/virtualenvs"
+      - run:
+          name: Poetry build
+          command: |
+            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; RefreshEnv
+            pyenv exec python -m poetry build --no-ansi --no-interaction
       - run:
           name: Run pytest
           command: |
-            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-            RefreshEnv
-            python -m poetry run coverage run -m pytest tests/
+            Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; RefreshEnv
+            pyenv exec python -m poetry run coverage run -m pytest tests/
 
   poetry_publish:
     executor:
