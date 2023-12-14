@@ -13,11 +13,20 @@ update-pip-poetry: &update-pip-poetry |-
   pip3 install --upgrade urllib3==1.26.12
   # Don't put more poetry commands here, they'll use the old version for some reason
 
+poetry-cache: &poetry-cache |-
+  poetry-cache-{{ arch }}-<< parameters.python-version >>-{{ .Branch }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "poetry.lock" }}
+
+flightgear-fgdata-linux-cache: &flightgear-fgdata-linux-cache |-
+  flightgear-fgdata-cache-{{ arch }}-{{ checksum "/tmp/fg-py-integration-test/FlightGear-2020.3.19-data.txz" }}
+
 jobs:
   lint:
+    parameters:
+      python-version:
+        type: string
     executor:
       name: python/default
-      tag: "3.6"
+      tag: << parameters.python-version >>
     steps:
       - checkout
       - run:
@@ -27,12 +36,12 @@ jobs:
           name: Poetry show version
           command: poetry --version
       - restore_cache:
-          key: &poetry-linux-cache poetry-cache-{{ arch }}-<< parameters.python-version >>-{{ .Branch }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "poetry.lock" }}
+          key: *poetry-cache
       - run:
           name: Poetry install
           command: poetry install --no-ansi --no-interaction
       - save_cache:
-          key: *poetry-linux-cache
+          key: *poetry-cache
           paths:
             - "/home/circleci/.cache/pypoetry/virtualenvs"
       - run:
@@ -67,12 +76,12 @@ jobs:
                 name: Delete JSBSim tests
                 command: rm --verbose tests/test_*JSBSim*.py
       - restore_cache:
-          key: &poetry-linux-cache poetry-cache-{{ arch }}-<< parameters.python-version >>-{{ .Branch }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "poetry.lock" }}
+          key: *poetry-cache
       - run:
           name: Poetry install
           command: poetry install --no-ansi --no-interaction
       - save_cache:
-          key: *poetry-linux-cache
+          key: *poetry-cache
           paths:
             - "/home/circleci/.cache/pypoetry/virtualenvs"
       - run:
@@ -105,7 +114,7 @@ jobs:
                   wget --output-document "/tmp/fg-py-integration-test/FlightGear-2020.3.19-data.txz" \
                     'https://netactuate.dl.sourceforge.net/project/flightgear/release-2020.3/FlightGear-2020.3.19-data.txz'
             - restore_cache:
-                key: &flightgear-fgdata-linux-cache flightgear-fgdata-cache-{{ arch }}-{{ checksum "/tmp/fg-py-integration-test/FlightGear-2020.3.19-data.txz" }}
+                key: *flightgear-fgdata-linux-cache
             - run:
                 name: Integration Tests Script
                 command: DISPLAY=:1 scripts/fg_full_integration_test.sh
@@ -151,8 +160,6 @@ jobs:
       shell: powershell.exe
     steps:
       - checkout
-#      - restore_cache:
-#          key: &pyenv-win-cache pyenv-cache-{{ arch }}-<< parameters.python-version >>-{{ .Branch }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "poetry.lock" }}
       - run:
           name: Install pyenv-win
           command: |
@@ -190,21 +197,22 @@ jobs:
             - run:
                 name: Delete JSBSim tests
                 command: remove-item "tests/test_*JSBSim*.py"
+      #      - restore_cache:
+      #          key: *poetry-cache
       - run:
           name: Poetry install
           command: |
             Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; RefreshEnv
             pyenv exec python -m poetry install --no-ansi --no-interaction
+      #      - save_cache:
+      #          key: *poetry-cache
+      #          paths:
+      #            - "C:/Users/circleci/AppData/Local/pypoetry/Cache/virtualenvs"
       - run:
           name: Install coverage
           command: |
             Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; RefreshEnv
             pyenv exec python -m pip install -U coverage
-#      - save_cache:
-#          key: *pyenv-win-cache
-#          paths:
-#            - "C:/Users/circleci/.pyenv"
-#            - "C:/Users/circleci/AppData/Local/pypoetry/Cache/virtualenvs"
       - run:
           name: Poetry build
           command: |
@@ -262,17 +270,20 @@ workflows:
   main-workflow:
     jobs:
       - lint:
+          matrix:
+            parameters:
+              python-version: [ "3.6" ]
           <<: *everything-filter # required since `deploy` has tag filters AND requires `build`
       - build_install_test_windows:
           matrix:
             parameters:
               #python-version: ["3.6.8", "3.7.9", "3.8.10", "3.9.13", "3.10.5"]
-              python-version: ["3.8.10"]
+              python-version: [ "3.8.10" ]
           <<: *everything-filter # required since `deploy` has tag filters AND requires `build`
       - build_install_test:
           matrix:
             parameters:
-              python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+              python-version: [ "3.6", "3.7", "3.8", "3.9", "3.10" ]
           <<: *everything-filter # required since `deploy` has tag filters AND requires `build`
       - poetry_publish:
           requires:
