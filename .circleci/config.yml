@@ -99,8 +99,20 @@ jobs:
                   Xvfb :1 -screen 0 1280x1024x24 -fbdir /var/tmp &
                   DISPLAY=:1 dbus-launch
             - run:
+                name: Pre-download fgdata
+                command: |
+                  mkdir /tmp/fg-py-integration-test
+                  wget --output-document "/tmp/fg-py-integration-test/FlightGear-2020.3.19-data.txz" \
+                    'https://netactuate.dl.sourceforge.net/project/flightgear/release-2020.3/FlightGear-2020.3.19-data.txz'
+            - restore_cache:
+                key: &flightgear-fgdata-linux-cache flightgear-fgdata-cache-{{ arch }}-{{ checksum "/tmp/fg-py-integration-test/FlightGear-2020.3.19-data.txz" }}
+            - run:
                 name: Integration Tests Script
                 command: DISPLAY=:1 scripts/fg_full_integration_test.sh
+            - save_cache:
+                key: *flightgear-fgdata-linux-cache
+                paths:
+                  - "/tmp/fg-py-integration-test/fgdata"
             - run:
                 name: Coveralls
                 command: |
