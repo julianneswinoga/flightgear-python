@@ -130,8 +130,8 @@ jobs:
       shell: powershell.exe
     steps:
       - checkout
-      - restore_cache:
-          key: &pyenv-win-cache pyenv-cache-{{ arch }}-<< parameters.python-version >>-{{ .Branch }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "poetry.lock" }}
+#      - restore_cache:
+#          key: &pyenv-win-cache pyenv-cache-{{ arch }}-<< parameters.python-version >>-{{ .Branch }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "poetry.lock" }}
       - run:
           name: Install pyenv-win
           command: |
@@ -179,11 +179,11 @@ jobs:
           command: |
             Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; RefreshEnv
             pyenv exec python -m pip install -U coverage
-      - save_cache:
-          key: *pyenv-win-cache
-          paths:
-            - "C:/Users/circleci/.pyenv"
-            - "C:/Users/circleci/AppData/Local/pypoetry/Cache/virtualenvs"
+#      - save_cache:
+#          key: *pyenv-win-cache
+#          paths:
+#            - "C:/Users/circleci/.pyenv"
+#            - "C:/Users/circleci/AppData/Local/pypoetry/Cache/virtualenvs"
       - run:
           name: Poetry build
           command: |
