@@ -11,7 +11,7 @@ if [ "$1" = 'clean' ]; then
   pip3 install -U pip
   pip3 install -U poetry
   pip3 install -U Cython
-  poetry update -vvv
+#  poetry update -vvv
 fi
 
 # Remove clean from args

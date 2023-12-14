@@ -132,6 +132,9 @@ while true; do
   "ctrls_out=$ctrls_out_sts ctrls_in=$ctrls_in_sts "\
   "gui_out=$gui_out_sts gui_in=$gui_in_sts "
 done
+
+poetry run coverage run -m pytest -m 'fg_integration or not fg_integration' tests/
+
 #read -p 'wait...'
 kill "$fg_pid" || true
 killall fgfs || true
