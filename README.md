@@ -11,7 +11,7 @@ Install: `pip3 install flightgear-python`
 
 Don't know where to begin? Check out the [quick-start](https://flightgear-python.readthedocs.io/en/latest/quickstart.html) documentation.
 
-FDM example, from `examples/simple_fdm.py`
+Flight Dynamics Model (FDM) example, from `examples/simple_fdm.py`
 ```python
 """
 Simple Flight Dynamics Model (FDM) example that makes the altitude increase and the plane roll in the air.

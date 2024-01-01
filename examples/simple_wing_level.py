@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 """
-TODO: DOCS
 Simple example where we connect to both the FDM and Controls interface to create closed loop control.
 We're using a simple Proportional ('P') controller that reads the plane roll angle and controls the ailerons.
 """
