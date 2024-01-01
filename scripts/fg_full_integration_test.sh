@@ -97,22 +97,22 @@ while true; do
   curl --silent --show-error --fail --connect-timeout $http_timeout 'http://localhost:8080/json/' >/dev/null 2>&1
   http_sts=$?
 
-  nc -vz localhost 5500 >/dev/null 2>&1
+  nc -vz 127.0.0.1 5500 >/dev/null 2>&1
   telnet_sts=$?
 
   timeout $udp_out_timeout socat -u UDP-RECVFROM:5501 SYSTEM:'head -c10'
   fdm_out_sts=$?
-  nc -vzu localhost 5502 >/dev/null 2>&1
+  nc -vzu 127.0.0.1 5502 >/dev/null 2>&1
   fdm_in_sts=$?
 
   timeout $udp_out_timeout socat -u UDP-RECVFROM:5503 SYSTEM:'head -c10'
   ctrls_out_sts=$?
-  nc -vzu localhost 5504 >/dev/null 2>&1
+  nc -vzu 127.0.0.1 5504 >/dev/null 2>&1
   ctrls_in_sts=$?
 
   timeout $udp_out_timeout socat -u UDP-RECVFROM:5505 SYSTEM:'head -c10'
   gui_out_sts=$?
-  nc -vzu localhost 5506 >/dev/null 2>&1
+  nc -vzu 127.0.0.1 5506 >/dev/null 2>&1
   gui_in_sts=$?
   set -e
 
