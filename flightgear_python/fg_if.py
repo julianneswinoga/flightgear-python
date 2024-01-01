@@ -65,6 +65,7 @@ class FGConnection:
             self.fg_rx_sock.bind(fg_rx_addr)
         except Exception as e:
             raise FGConnectionError(f'Could not bind to {fg_rx_addr}: {e}')
+        self.fg_rx_sock.settimeout(self.rx_timeout_s)
         self.fg_rx_cb = rx_cb
 
         return self.event_pipe
@@ -109,7 +110,6 @@ class FGConnection:
         if self.fg_tx_sock is None:
             print(f'Warning: TX not connected, not sending updates to FG for RX {self.fg_rx_sock.getsockname()}')
 
-        self.fg_rx_sock.settimeout(self.rx_timeout_s)
         self.event_pipe.child_send((True,))  # Signal to parent that child is running
         while True:
             self._fg_packet_roundtrip()
