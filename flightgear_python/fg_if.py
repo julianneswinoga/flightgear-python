@@ -66,6 +66,7 @@ class FGConnection:
         except Exception as e:
             raise FGConnectionError(f'Could not bind to {fg_rx_addr}: {e}')
         self.fg_rx_sock.settimeout(self.rx_timeout_s)
+        self.fg_rx_sock.setblocking(True)
         self.fg_rx_cb = rx_cb
 
         return self.event_pipe
