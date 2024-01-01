@@ -1,4 +1,5 @@
 from flightgear_python.fg_if import FDMConnection
+from flightgear_python.fg_util import FGConnectionError
 from testing_common import supported_fdm_versions
 
 import pytest
@@ -90,3 +91,22 @@ def test_fdm_only_rx(mocker, fdm_version):
 
     # Prevent 'ResourceWarning: unclosed' warning
     fdm_c.fg_rx_sock.close()
+
+
+def test_fdm_wrong_version_on_create():
+    with pytest.raises(NotImplementedError):
+        FDMConnection(fdm_version=1)
+
+
+@pytest.mark.parametrize('fdm_version', supported_fdm_versions)
+def test_fdm_bad_port(mocker, fdm_version):
+    def mock_bind(addr):
+        # Binding to port 1 should usually fail with Should fail with `[Errno 13] Permission denied`
+        # but this is more reliable
+        raise PermissionError('Mock permission fail')
+
+    mocker.patch('socket.socket.bind', mock_bind)
+
+    fdm_c = FDMConnection(fdm_version)
+    with pytest.raises(FGConnectionError):
+        fdm_c.connect_rx('localhost', 1, lambda data, pipe: data)

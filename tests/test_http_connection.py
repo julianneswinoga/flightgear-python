@@ -63,3 +63,25 @@ def test_http_set_prop(preset_value):
         m.post(h_con.url + prop_path)
         # Check the code doesn't break (nothing to assert)
         h_con.set_prop(prop_path, 'test value')
+
+
+def test_http_get_prop_must_be_absolute():
+    h_con = HTTPConnection('localhost', 55555)
+    with requests_mock.Mocker() as m:
+        prop_path = 'non_absolute/path'
+        # Set the mock value
+        m.get(h_con.url + prop_path, json={})
+
+        with pytest.raises(ValueError):
+            h_con.get_prop(prop_path)
+
+
+def test_http_set_prop_must_be_absolute():
+    h_con = HTTPConnection('localhost', 55555)
+    with requests_mock.Mocker() as m:
+        prop_path = 'non_absolute/path'
+        # Set the mock value
+        m.get(h_con.url + prop_path, json={})
+        m.post(h_con.url + prop_path)
+        with pytest.raises(ValueError):
+            h_con.set_prop(prop_path, 'test value')

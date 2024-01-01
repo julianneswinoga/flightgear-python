@@ -3,6 +3,7 @@ import time
 import pytest
 
 from flightgear_python.fg_if import PropsConnection
+from flightgear_python.fg_util import FGConnectionError
 
 
 pytestmark = pytest.mark.fg_integration
@@ -42,3 +43,9 @@ def test_telnet_set_prop():
     t_con.set_prop('/controls/flight/rudder', -0.5)
     aileron_value = t_con.get_prop('/controls/flight/rudder')
     assert aileron_value == -0.5
+
+
+def test_telnet_wrong_port():
+    t_con = PropsConnection('localhost', 123)
+    with pytest.raises(FGConnectionError):
+        t_con.connect()
