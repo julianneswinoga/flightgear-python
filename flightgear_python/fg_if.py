@@ -429,9 +429,7 @@ class HTTPConnection(PropsConnectionBase):
     """
 
     def __init__(self, host: str, tcp_port: int, timeout_s: float = 2.0):
-        self.host = host
-        self.port = tcp_port
-        self.url = f'http://{self.host}:{self.port}/json'
+        self.url = f'http://{host}:{tcp_port}/json'
         self.session = requests.Session()
         self.timeout_s = timeout_s
 
@@ -453,7 +451,7 @@ class HTTPConnection(PropsConnectionBase):
         """
         prop_str = self.check_and_normalize_prop_path(prop_str)
         resp_json = self.request_shim('GET', self.url + prop_str).json()
-        converted_value = self._auto_convert_fg_prop(resp_json["value"], resp_json["type"])
+        converted_value = self._auto_convert_fg_prop(resp_json['value'], resp_json['type'])
         return converted_value
 
     def set_prop(self, prop_str: str, value: Any):
@@ -468,15 +466,19 @@ class HTTPConnection(PropsConnectionBase):
         # Fetch the type of the property
         resp_json = self.request_shim('GET', self.url + prop_str).json()
         # Set the property
-        data = {"path": prop_str, "value": str(value), "type": resp_json["type"]}
+        data = {
+            'path': prop_str,
+            'value': str(value),
+            'type': resp_json['type'],
+        }
         self.request_shim('POST', self.url + prop_str, json=data)
         # We don't care about the response
 
     def get_values_and_dirs(self, path: str) -> Tuple[List[PropertyTreeValue], List[str]]:
         resp_json = self.request_shim('GET', self.url + path).json()
-        if resp_json["nChildren"] == 0:
+        if resp_json['nChildren'] == 0:
             return [], []
-        resp_list = resp_json["children"]
+        resp_list = resp_json['children']
         # extract of directories, absolute path
         val_list: List[PropertyTreeValue] = []
         dir_list: List[str] = []
