@@ -326,6 +326,8 @@ class TelnetConnection(PropsConnectionBase):
             self.sock.connect(telnet_addr)
         except Exception as e:
             raise FGConnectionError(f'Could not connect to FlightGear telnet server {telnet_addr}: {e}') from e
+
+        self.sock.settimeout(self.rx_timeout_s)
         # force move to the root directory (maybe someone was connected before we were)
         _ = self._send_cmd_get_resp('cd /')
 
@@ -336,7 +338,6 @@ class TelnetConnection(PropsConnectionBase):
     def _send_cmd_get_resp(self, cmd_str: str, buflen: int = 512) -> str:
         self.sock.sendall(self._telnet_str(cmd_str))
 
-        self.sock.settimeout(self.rx_timeout_s)
         # FG telnet always ends with a prompt (`cwd`> ), and since we always
         # operate relative to the root directory, it should always be the same prompt
         ending_bytes = b'/> '
