@@ -3,6 +3,7 @@ import time
 import pytest
 
 from flightgear_python.fg_if import HTTPConnection
+from flightgear_python.fg_util import FGConnectionError
 
 
 pytestmark = pytest.mark.fg_integration
@@ -39,3 +40,9 @@ def test_http_set_prop():
     h_con.set_prop('/controls/flight/aileron', -0.5)
     aileron_value = h_con.get_prop('/controls/flight/aileron')
     assert aileron_value == -0.5
+
+
+def test_http_wrong_port():
+    t_con = HTTPConnection('localhost', 123)
+    with pytest.raises(FGConnectionError):
+        t_con.get_prop('/controls/flight/aileron')

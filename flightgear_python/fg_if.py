@@ -425,13 +425,22 @@ class HTTPConnection(PropsConnectionBase):
     :param host: IP address of FG (usually localhost)
     :param tcp_port: Port of the telnet socket (i.e. the ``5050`` from\
         ``--httpd=5050``)
+    :param timeout_s: Optional timeout value in seconds for the HTTP connection
     """
 
-    def __init__(self, host: str, tcp_port: int):
+    def __init__(self, host: str, tcp_port: int, timeout_s: float = 2.0):
         self.host = host
         self.port = tcp_port
         self.url = f'http://{self.host}:{self.port}/json'
         self.session = requests.Session()
+        self.timeout_s = timeout_s
+
+    def request_shim(self, method: str, url: str, *args, **kwargs) -> requests.Response:
+        # Shim layer over session.request so we can set default options and handle errors in a unified fashion
+        try:
+            return self.session.request(method, url, *args, timeout=self.timeout_s, **kwargs)
+        except requests.exceptions.ConnectionError:
+            raise FGConnectionError(f'Problem connecting to {self.url}')
 
     def get_prop(self, prop_str: str) -> Any:
         """
@@ -443,9 +452,9 @@ class HTTPConnection(PropsConnectionBase):
             will pre-convert it (i.e. make an int from a string)
         """
         prop_str = self.check_and_normalize_prop_path(prop_str)
-        resp_json = self.session.get(self.url + prop_str).json()
-        value = self._auto_convert_fg_prop(resp_json["value"], resp_json["type"])
-        return value
+        resp_json = self.request_shim('GET', self.url + prop_str).json()
+        converted_value = self._auto_convert_fg_prop(resp_json["value"], resp_json["type"])
+        return converted_value
 
     def set_prop(self, prop_str: str, value: Any):
         """
@@ -457,14 +466,14 @@ class HTTPConnection(PropsConnectionBase):
         """
         prop_str = self.check_and_normalize_prop_path(prop_str)
         # Fetch the type of the property
-        resp_json = self.session.get(self.url + prop_str).json()
+        resp_json = self.request_shim('GET', self.url + prop_str).json()
         # Set the property
         data = {"path": prop_str, "value": str(value), "type": resp_json["type"]}
-        self.session.post(self.url + prop_str, json=data)
+        self.request_shim('POST', self.url + prop_str, json=data)
         # We don't care about the response
 
     def get_values_and_dirs(self, path: str) -> Tuple[List[PropertyTreeValue], List[str]]:
-        resp_json = self.session.get(self.url + path).json()
+        resp_json = self.request_shim('GET', self.url + path).json()
         if resp_json["nChildren"] == 0:
             return [], []
         resp_list = resp_json["children"]
