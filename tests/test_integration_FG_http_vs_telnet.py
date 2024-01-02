@@ -8,20 +8,23 @@ from flightgear_python.fg_if import HTTPConnection, PropsConnection
 pytestmark = pytest.mark.fg_integration
 
 
-def test_comparison_list_props():
+@pytest.mark.parametrize('recurse_limit', [0, 1, None])
+def test_comparison_list_props(recurse_limit):
     h_con = HTTPConnection('localhost', 8080)
     t_con = PropsConnection('localhost', 5500)
     t_con.connect()
 
-    http_sun_prop_dict_immediate = h_con.list_props('/ephemeris/sun', recurse_limit=0)
-    telnet_sun_prop_dict_immediate = t_con.list_props('/ephemeris/sun', recurse_limit=0)
+    http_sun_prop_dict_immediate = h_con.list_props('/ephemeris/sun', recurse_limit=recurse_limit)
+    telnet_sun_prop_dict_immediate = t_con.list_props('/ephemeris/sun', recurse_limit=recurse_limit)
+
     assert http_sun_prop_dict_immediate['directories'] == telnet_sun_prop_dict_immediate['directories']
     assert http_sun_prop_dict_immediate['properties'].keys() == telnet_sun_prop_dict_immediate['properties'].keys()
-
-    http_sun_prop_dict_all = h_con.list_props('/ephemeris/sun', recurse_limit=None)
-    telnet_sun_prop_dict_all = t_con.list_props('/ephemeris/sun', recurse_limit=None)
-    assert http_sun_prop_dict_all['directories'] == telnet_sun_prop_dict_all['directories']
-    assert http_sun_prop_dict_all['properties'].keys() == telnet_sun_prop_dict_all['properties'].keys()
+    # After we've verified the keys are identical we can check the values
+    for prop_full_path in http_sun_prop_dict_immediate['properties'].keys():
+        http_value = http_sun_prop_dict_immediate['properties'][prop_full_path]
+        telnet_value = telnet_sun_prop_dict_immediate['properties'][prop_full_path]
+        # We can't compare actual values (could be minute changes) but we can compare types
+        assert type(http_value) == type(telnet_value), f'value path is {prop_full_path}'
 
 
 def test_comparison_get_prop():
