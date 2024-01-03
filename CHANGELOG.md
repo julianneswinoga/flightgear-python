@@ -1,3 +1,16 @@
+#### [1.5.0](https://github.com/julianneswinoga/flightgear-python/compare/1.4.1...1.5.0)
+
+> 2 January 2024
+
+- User-wise, renamed `PropsConnection` to `TelnetConnection`
+  - Add deprecation test for `PropsConnection`->`TelnetConnection`, filter out annoying `DeprecationWarning: the imp module is deprecated` from `import jsbsim` [`5d02496`](https://github.com/julianneswinoga/flightgear-python/commit/5d024964bcaa9d68b530778cd576302dc4680474)
+  - Refactor Telnet and HTTP classes to have the same base class [`fb7b392`](https://github.com/julianneswinoga/flightgear-python/commit/fb7b392b2881e36230e5400d0dc1ab9d4be0b1a3)
+- Property-tree-things documentation cleanup, change intersphinx python to point at 3.6 [`5556f77`](https://github.com/julianneswinoga/flightgear-python/commit/5556f7740a005e5548f8e3c6b5c965a4596356a6)
+- Add `timeout_s` param to `HTTPConnection` [`b9aa576`](https://github.com/julianneswinoga/flightgear-python/commit/b9aa576dea440a1c99caa72f6ac42fdaa21bafae)
+- Compare value types in http vs telnet test, parameterize to reduce duplicate code [`b4f1a9f`](https://github.com/julianneswinoga/flightgear-python/commit/b4f1a9f24432c075030e3e900f92c9e1ad674385)
+- Move telnet `sock.settimeout()` from `_send_cmd_get_resp()` to `connect()` [`620bb28`](https://github.com/julianneswinoga/flightgear-python/commit/620bb28e62473a2b3d0675eade6f181a85f06dd6)
+- Minor docs changes [`aedb32a`](https://github.com/julianneswinoga/flightgear-python/commit/aedb32a80954942899a27cb3c982d1dff472ff22)
+
 #### [1.4.1](https://github.com/julianneswinoga/flightgear-python/compare/1.4.0...1.4.1)
 
 > 1 January 2024
