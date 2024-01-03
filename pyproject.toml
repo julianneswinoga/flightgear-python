@@ -53,3 +53,6 @@ markers = [
     'fg_integration: to be used with a running FlightGear instance. See scripts/fg_full_integration_test.sh (deselected by default)',
 ]
 addopts = '-m "not fg_integration"'
+filterwarnings = [
+    'ignore::DeprecationWarning:setuptools:2',
+]
