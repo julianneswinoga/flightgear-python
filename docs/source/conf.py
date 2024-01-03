@@ -1,7 +1,7 @@
 # Project information
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 project = 'flightgear-python'
-copyright = '2022, Julianne Swinoga'
+copyright = '2024, Julianne Swinoga'
 author = 'Julianne Swinoga'
 release = '1.0.0'
 
