@@ -48,3 +48,11 @@ def test_telnet_set_prop_must_be_absolute(mocker):
     t_con = TelnetConnection('localhost', 55554)
     with pytest.raises(ValueError):
         t_con.set_prop('non_absolute/path', 'test value')
+
+
+def test_telnet_deprecated_name_still_works():
+    from flightgear_python.fg_if import PropsConnection
+    with pytest.deprecated_call():
+        t_con = PropsConnection('localhost', 55554)
+    # Prevent 'ResourceWarning: unclosed' warning
+    t_con.sock.close()
