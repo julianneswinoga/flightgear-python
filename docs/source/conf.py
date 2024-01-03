@@ -19,7 +19,8 @@ autodoc_typehints = 'description'
 autosummary_generate = True
 
 intersphinx_mapping = {
-    'python': ('http://docs.python.org/3', None),
+    'python': ('https://docs.python.org/3.6', None),
+    'requests': ('https://requests.readthedocs.io/en/latest/', None),
 }
 
 templates_path = ['_templates']

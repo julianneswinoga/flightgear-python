@@ -187,6 +187,10 @@ class GuiConnection(FGConnection):
 
 
 class PropertyTreeValue(NamedTuple):
+    """
+    Internal representation for working with values from the property tree
+    sphinx-no-autodoc
+    """
     absolute_path: str
     value_str: str
     type_str: str
@@ -216,6 +220,10 @@ class PropsConnectionBase:
 
     @staticmethod
     def check_and_normalize_prop_path(path: str) -> str:
+        """
+        Make sure the path is always absolute and strip trailing slashes
+        sphinx-no-autodoc
+        """
         if not path.startswith('/'):
             raise ValueError(f'Path must be absolute (start with /): {path}')
         path = path.rstrip('/') if path != "/" else path  # Strip trailing slash to keep things consistent
@@ -396,6 +404,10 @@ class TelnetConnection(PropsConnectionBase):
         # We don't care about the response
 
     def get_values_and_dirs(self, path: str) -> Tuple[List[PropertyTreeValue], List[str]]:
+        """
+        Internal method to populate a shared property tree data structure
+        sphinx-no-autodoc
+        """
         resp_list = self._send_cmd_get_resp(f'ls {path}').split('\r\n')
         val_list: List[PropertyTreeValue] = []
         dir_list: List[str] = []
@@ -434,7 +446,13 @@ class HTTPConnection(PropsConnectionBase):
         self.timeout_s = timeout_s
 
     def request_shim(self, method: str, url: str, *args, **kwargs) -> requests.Response:
-        # Shim layer over session.request so we can set default options and handle errors in a unified fashion
+        """
+        Shim layer over session.request so we can set default options and handle errors in a unified fashion
+        sphinx-no-autodoc
+
+        :param method: Directly copied from :meth:`requests.Session.request()`
+        :param url: Directly copied from :meth:`requests.Session.request()`
+        """
         try:
             return self.session.request(method, url, *args, timeout=self.timeout_s, **kwargs)
         except requests.exceptions.ConnectionError:
@@ -475,6 +493,10 @@ class HTTPConnection(PropsConnectionBase):
         # We don't care about the response
 
     def get_values_and_dirs(self, path: str) -> Tuple[List[PropertyTreeValue], List[str]]:
+        """
+        Internal method to populate a shared property tree data structure
+        sphinx-no-autodoc
+        """
         resp_json = self.request_shim('GET', self.url + path).json()
         if resp_json['nChildren'] == 0:
             return [], []
