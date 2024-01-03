@@ -5,14 +5,14 @@ import copy
 import socket
 import sys
 import re
-from typing import Any, ByteString, Callable, Dict, Optional, Tuple, Union
+from typing import Any, ByteString, Callable, Dict, Optional, Tuple, Union, List, NamedTuple
 
 import multiprocess as mp
 import requests
 
 from construct import ConstError, Struct, Container
 
-from .general_util import EventPipe, strip_end
+from .general_util import EventPipe, strip_end, deprecate_rename_wrapper
 from .fg_util import FGConnectionError, FGCommunicationError, fix_fg_radian_parsing
 
 rx_callback_type = Callable[[Container, EventPipe], Optional[Container]]
@@ -186,7 +186,120 @@ class GuiConnection(FGConnection):
         self.fg_net_struct = Struct(*[k / v for k, v in gui_struct.items()])
 
 
-class PropsConnection:
+class PropertyTreeValue(NamedTuple):
+    absolute_path: str
+    value_str: str
+    type_str: str
+
+
+class PropsConnectionBase:
+    """
+    Base class for interacting with the properties interface.
+    Not to be instantiated directly.
+    sphinx-no-autodoc
+    """
+
+    @staticmethod
+    def _auto_convert_fg_prop(value_str: str, type_str: str) -> Any:
+        convert_fn = {
+            'bool': bool,
+            'int': int,
+            'string': str,
+            'double': float,
+            'float': float,
+        }.get(type_str, lambda x: x)
+        try:
+            value = convert_fn(value_str)
+        except ValueError as e:
+            raise FGCommunicationError(f'Could not auto-convert "{value_str}" to "{type_str}": {e}') from e
+        return value
+
+    @staticmethod
+    def check_and_normalize_prop_path(path: str) -> str:
+        if not path.startswith('/'):
+            raise ValueError(f'Path must be absolute (start with /): {path}')
+        path = path.rstrip('/') if path != "/" else path  # Strip trailing slash to keep things consistent
+        return path
+
+    def get_values_and_dirs(self, path: str) -> Tuple[List[PropertyTreeValue], List[str]]:
+        raise NotImplementedError('Function needs to be implemented in subclasses')
+
+    def list_props(self, path: str = '/', recurse_limit: Optional[int] = 0) -> Dict[str, Union[list, Dict]]:
+        """
+        List properties in the FlightGear property tree.
+
+        :param path: Directory to list from, should always be relative to
+            the root (``/``)
+        :param recurse_limit: How many times to recurse into subdirectories.
+            1 (default) is no recursion, 2 is 1 level deep, etc. Passing in
+            ``None`` disables the recursion limit. Be warned that enabling any kind of recursion will take a long time!
+        :return: Dictionary with keys:
+
+            * ``directories``: List of directories, absolute path
+            * ``properties``: Dictionary with property name as the key (absolute path), value as their value.
+
+        Example for ``list_props('/position', recurse_limit=0)``:
+
+        .. code-block:: python
+
+            {
+                'directories': [
+                    '/position/model'
+                ],
+                'properties': {
+                    '/position/altitude-agl-ft': 3.148566963,
+                    '/position/altitude-agl-m': 0.9596832103,
+                    '/position/altitude-ft': 3491.986254,
+                    '/position/ground-elev-ft': 3488.469757,
+                    '/position/ground-elev-m': 1063.285582,
+                    '/position/latitude-deg': 0.104476136,
+                    '/position/latitude-string': '0*06\\'16.1"N',
+                    '/position/longitude-deg': 100.023135,
+                    '/position/longitude-string': '100*01\\'23.3"E',
+                    '/position/sea-level-radius-ft': 20925646.09
+                }
+            }
+        """
+        path = self.check_and_normalize_prop_path(path)
+
+        val_list, dir_list = self.get_values_and_dirs(path)
+
+        prop_dict = {}
+        # recursion support
+        if recurse_limit is None or recurse_limit > 0:
+            dir_list_cwd = copy.deepcopy(dir_list)
+            for dir_str in dir_list_cwd:
+                # Handle None as a recursion limit
+                if recurse_limit is None:
+                    new_recurse_limit = None
+                else:
+                    new_recurse_limit = recurse_limit - 1
+                # recursion!
+                dir_dict = self.list_props(dir_str, recurse_limit=new_recurse_limit)
+                # add the recursed properties
+                prop_dict = {**prop_dict, **dir_dict['properties']}
+                dir_list.remove(dir_str)  # remove the non-recursed directory
+                # add the recursed directories
+                dir_list += dir_dict['directories']
+
+        # extract all the values
+        for val_entry in val_list:
+            converted_value = self._auto_convert_fg_prop(val_entry.value_str, val_entry.type_str)
+            prop_dict[val_entry.absolute_path] = converted_value
+
+        # Returned paths are absolute
+        rtn_dict = {
+            # sort the list because we're nice
+            'directories': dir_list,
+            'properties': prop_dict,
+        }
+        return rtn_dict
+
+
+deprecate_rename_wrapper(sys.modules[__name__], 'PropsConnection', sys.modules[__name__], 'TelnetConnection')
+
+
+class TelnetConnection(PropsConnectionBase):
     """
     FlightGear Telnet Interface Connection (also known as the property interface).
     See https://wiki.flightgear.org/Telnet_usage for general details.
@@ -242,7 +355,7 @@ class PropsConnection:
         return resp_str
 
     @staticmethod
-    def _extract_fg_prop(resp_str: str) -> Tuple[str, Any]:
+    def _telnet_resp_to_val(resp_str: str) -> Tuple[str, str, str]:
         try:
             match = re.search(r"^(.+)\s=\s+'(.*)'\s+\((.+)\)$", resp_str, flags=re.DOTALL)
         except Exception as e:
@@ -252,17 +365,7 @@ class PropsConnection:
         key_str = match.group(1)
         value_str = match.group(2)
         type_str = match.group(3)
-        convert_fn = {
-            'bool': bool,
-            'int': int,
-            'string': str,
-            'double': float,
-        }.get(type_str, lambda x: x)
-        try:
-            value = convert_fn(value_str)
-        except ValueError as e:
-            raise FGCommunicationError(f'Could not auto-convert "{resp_str}": {e}') from e
-        return key_str, value
+        return key_str, value_str, type_str
 
     def get_prop(self, prop_str: str) -> Any:
         """
@@ -273,11 +376,11 @@ class PropsConnection:
         :return: The value of the property. If FG tells us what the type is we \
             will pre-convert it (i.e. make an int from a string)
         """
-        if not prop_str.startswith('/'):
-            raise ValueError(f'Property must be absolute (start with /): {prop_str}')
+        prop_str = self.check_and_normalize_prop_path(prop_str)
         resp_str = self._send_cmd_get_resp(f'get {prop_str}')
-        _, value = self._extract_fg_prop(resp_str)
-        return value
+        abs_path, value_str, type_str = self._telnet_resp_to_val(resp_str)
+        converted_value = self._auto_convert_fg_prop(value_str, type_str)
+        return converted_value
 
     def set_prop(self, prop_str: str, value: Any):
         """
@@ -287,90 +390,33 @@ class PropsConnection:
             the root (``/``)
         :param value: Value to set the property to. Must be convertible to ``str``
         """
-        if not prop_str.startswith('/'):
-            raise ValueError(f'Property must be absolute (start with /): {prop_str}')
+        prop_str = self.check_and_normalize_prop_path(prop_str)
         _ = self._send_cmd_get_resp(f'set {prop_str} {str(value)}')
         # We don't care about the response
 
-    def list_props(self, path: str = '/', recurse_limit: Optional[int] = 0) -> Dict[str, Union[list, Dict]]:
-        """
-        List properties in the FlightGear property tree.
-
-        :param path: Directory to list from, should always be relative to
-            the root (``/``)
-        :param recurse_limit: How many times to recurse into subdirectories.
-            1 (default) is no recursion, 2 is 1 level deep, etc. Passing in
-            ``None`` disables the recursion limit. Be warned that enabling any kind of recursion will take a long time!
-        :return: Dictionary with keys:
-
-            * ``directories``: List of directories, absolute path
-            * ``properties``: Dictionary with property name as the key (absolute path), value as their value.
-
-        Example for ``list_props('/position', recurse_limit=0)``:
-
-        .. code-block:: python
-
-            {
-                'directories': [
-                    '/position/model'
-                ],
-                'properties': {
-                    '/position/altitude-agl-ft': 3.148566963,
-                    '/position/altitude-agl-m': 0.9596832103,
-                    '/position/altitude-ft': 3491.986254,
-                    '/position/ground-elev-ft': 3488.469757,
-                    '/position/ground-elev-m': 1063.285582,
-                    '/position/latitude-deg': 0.104476136,
-                    '/position/latitude-string': '0*06\\'16.1"N',
-                    '/position/longitude-deg': 100.023135,
-                    '/position/longitude-string': '100*01\\'23.3"E',
-                    '/position/sea-level-radius-ft': 20925646.09
-                }
-            }
-        """
-        if not path.startswith('/'):
-            raise ValueError(f'Path must be absolute (start with /): {path}')
-        path = path.rstrip('/')  # Strip trailing slash to keep things consistent
-
+    def get_values_and_dirs(self, path: str) -> Tuple[List[PropertyTreeValue], List[str]]:
         resp_list = self._send_cmd_get_resp(f'ls {path}').split('\r\n')
-        # extract of directories, absolute path
-        dir_list = [f'{path}/{s.rstrip("/")}' for s in resp_list if s.endswith('/')]
-
-        prop_dict = {}
-        # recursion support
-        if recurse_limit is None or recurse_limit > 0:
-            dir_list_cwd = copy.deepcopy(dir_list)
-            for dir_str in dir_list_cwd:
-                # Handle None as a recursion limit
-                if recurse_limit is None:
-                    new_recurse_limit = None
-                else:
-                    new_recurse_limit = recurse_limit - 1
-                # recursion!
-                dir_dict = self.list_props(dir_str, recurse_limit=new_recurse_limit)
-                # add the recursed properties
-                prop_dict = {**prop_dict, **dir_dict['properties']}
-                dir_list.remove(dir_str)  # remove the non-recursed directory
-                # add the recursed directories
-                dir_list += dir_dict['directories']
-
-        # extract all the values
-        for s in resp_list:
-            if '=' in s:
-                key, val = self._extract_fg_prop(s)
+        val_list: List[PropertyTreeValue] = []
+        dir_list: List[str] = []
+        for prop_entry in resp_list:
+            if '=' in prop_entry:
                 # prepend the key with the working directory, keep naming consistent
-                prop_dict[f'{path}/{key}'] = val
+                abs_path, value_str, type_str = self._telnet_resp_to_val(f'{path}/{prop_entry.rstrip("/")}')
+                val_list.append(
+                    PropertyTreeValue(
+                        absolute_path=abs_path,
+                        value_str=value_str,
+                        type_str=type_str,
+                    )
+                )
+            elif prop_entry.endswith('/'):
+                dir_list.append(f'{path}/{prop_entry.rstrip("/")}')
+            else:
+                raise FGCommunicationError(f'Unknown Telnet response: {prop_entry}')
+        return val_list, dir_list
 
-        # Returned paths are absolute
-        rtn_dict = {
-            # sort the list because we're nice
-            'directories': dir_list,
-            'properties': prop_dict,
-        }
-        return rtn_dict
 
-
-class HTTPConnection:
+class HTTPConnection(PropsConnectionBase):
     """
     FlightGear HTTP Interface Connection (also known as the property interface).
     See https://wiki.flightgear.org/Property_Tree_Servers for general details.
@@ -386,20 +432,6 @@ class HTTPConnection:
         self.url = f'http://{self.host}:{self.port}/json'
         self.session = requests.Session()
 
-    @staticmethod
-    def _extract_fg_prop(value_str: str, type_str) -> Any:
-        convert_fn = {
-            'bool': bool,
-            'int': int,
-            'string': str,
-            'double': float,
-        }.get(type_str, lambda x: x)
-        try:
-            value = convert_fn(value_str)
-        except ValueError as e:
-            raise FGCommunicationError(f'Could not auto-convert "{value_str}" to "{type_str}": {e}') from e
-        return value
-
     def get_prop(self, prop_str: str) -> Any:
         """
         Get a property from FlightGear.
@@ -409,10 +441,9 @@ class HTTPConnection:
         :return: The value of the property. If FG tells us what the type is we \
             will pre-convert it (i.e. make an int from a string)
         """
-        if not prop_str.startswith('/'):
-            raise ValueError(f'Property must be absolute (start with /): {prop_str}')
+        prop_str = self.check_and_normalize_prop_path(prop_str)
         resp_json = self.session.get(self.url + prop_str).json()
-        value = self._extract_fg_prop(resp_json["value"], resp_json["type"])
+        value = self._auto_convert_fg_prop(resp_json["value"], resp_json["type"])
         return value
 
     def set_prop(self, prop_str: str, value: Any):
@@ -423,8 +454,7 @@ class HTTPConnection:
             the root (``/``)
         :param value: Value to set the property to. Must be convertible to ``str``
         """
-        if not prop_str.startswith('/'):
-            raise ValueError(f'Property must be absolute (start with /): {prop_str}')
+        prop_str = self.check_and_normalize_prop_path(prop_str)
         # Fetch the type of the property
         resp_json = self.session.get(self.url + prop_str).json()
         # Set the property
@@ -432,86 +462,27 @@ class HTTPConnection:
         self.session.post(self.url + prop_str, json=data)
         # We don't care about the response
 
-    def list_props(self, path: str = '/', recurse_limit: Optional[int] = 0) -> Dict[str, Union[list, Dict]]:
-        """
-        List properties in the FlightGear property tree.
-
-        :param path: Directory to list from, should always be relative to
-            the root (``/``)
-        :param recurse_limit: How many times to recurse into subdirectories.
-            1 (default) is no recursion, 2 is 1 level deep, etc. Passing in
-            ``None`` disables the recursion limit. Be warned that enabling any kind of recursion will take a long time!
-        :return: Dictionary with keys:
-
-            * ``directories``: List of directories, absolute path
-            * ``properties``: Dictionary with property name as the key (absolute path), value as their value.
-
-        Example for ``list_props('/position', recurse_limit=0)``:
-
-        .. code-block:: python
-
-            {
-                'directories': [
-                    '/position/model'
-                ],
-                'properties': {
-                    '/position/altitude-agl-ft': 3.148566963,
-                    '/position/altitude-agl-m': 0.9596832103,
-                    '/position/altitude-ft': 3491.986254,
-                    '/position/ground-elev-ft': 3488.469757,
-                    '/position/ground-elev-m': 1063.285582,
-                    '/position/latitude-deg': 0.104476136,
-                    '/position/latitude-string': '0*06\\'16.1"N',
-                    '/position/longitude-deg': 100.023135,
-                    '/position/longitude-string': '100*01\\'23.3"E',
-                    '/position/sea-level-radius-ft': 20925646.09
-                }
-            }
-        """
-        if not path.startswith('/'):
-            raise ValueError(f'Path must be absolute (start with /): {path}')
-        # Strip trailing slash to keep things consistent
-        path = path.rstrip('/') if path != "/" else path
-
+    def get_values_and_dirs(self, path: str) -> Tuple[List[PropertyTreeValue], List[str]]:
         resp_json = self.session.get(self.url + path).json()
         if resp_json["nChildren"] == 0:
-            return {
-                'directories': [],
-                'properties': {},
-            }
+            return [], []
         resp_list = resp_json["children"]
         # extract of directories, absolute path
-        dir_list = [s["path"].rstrip("/") for s in resp_list if s["type"] == "-"]
+        val_list: List[PropertyTreeValue] = []
+        dir_list: List[str] = []
+        for prop_entry in resp_list:
+            if 'value' not in prop_entry.keys():
+                # Sometimes there's weird no-value things in the property tree
+                prop_entry['value'] = None
 
-        prop_dict = {}
-        # recursion support
-        if recurse_limit is None or recurse_limit > 0:
-            dir_list_cwd = copy.deepcopy(dir_list)
-            for dir_str in dir_list_cwd:
-                # Handle None as a recursion limit
-                if recurse_limit is None:
-                    new_recurse_limit = None
-                else:
-                    new_recurse_limit = recurse_limit - 1
-                # recursion!
-                dir_dict = self.list_props(dir_str, recurse_limit=new_recurse_limit)
-                # add the recursed properties
-                prop_dict = {**prop_dict, **dir_dict['properties']}
-                dir_list.remove(dir_str)  # remove the non-recursed directory
-                # add the recursed directories
-                dir_list += dir_dict['directories']
-
-        # extract all the values
-        for s in resp_list:
-            if s["type"] != "-":
-                value = self._extract_fg_prop(s["value"], s["type"])
-                # prepend the key with the working directory, keep naming consistent
-                prop_dict[f'{s["path"]}'] = value
-
-        # Returned paths are absolute
-        rtn_dict = {
-            # sort the list because we're nice
-            'directories': dir_list,
-            'properties': prop_dict,
-        }
-        return rtn_dict
+            if prop_entry['nChildren'] > 0:
+                dir_list.append(prop_entry['path'].rstrip('/'))
+            else:
+                val_list.append(
+                    PropertyTreeValue(
+                        absolute_path=prop_entry['path'],
+                        value_str=prop_entry['value'],
+                        type_str=prop_entry['type'],
+                    )
+                )
+        return val_list, dir_list

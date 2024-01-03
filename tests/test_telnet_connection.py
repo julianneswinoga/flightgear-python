@@ -1,4 +1,4 @@
-from flightgear_python.fg_if import PropsConnection
+from flightgear_python.fg_if import TelnetConnection
 
 import pytest
 
@@ -24,27 +24,27 @@ def setup_props_mock(mocker, cmd_str):
     mocker.patch('socket.socket.connect', mock_socket_connect)
 
 
-def test_props_round_trip(mocker):
+def test_telnet_round_trip(mocker):
     cmd = 'test123'
     setup_props_mock(mocker, cmd)
-    p_con = PropsConnection('localhost', 55554)
-    resp = p_con._send_cmd_get_resp(cmd)
+    t_con = TelnetConnection('localhost', 55554)
+    resp = t_con._send_cmd_get_resp(cmd)
     assert ('A' * 512) in resp
     # Prevent 'ResourceWarning: unclosed' warning
-    p_con.sock.close()
+    t_con.sock.close()
 
 
-def test_props_get_prop_must_be_absolute(mocker):
+def test_telnet_get_prop_must_be_absolute(mocker):
     cmd = 'test123'
     setup_props_mock(mocker, cmd)
-    p_con = PropsConnection('localhost', 55554)
+    t_con = TelnetConnection('localhost', 55554)
     with pytest.raises(ValueError):
-        p_con.get_prop('non_absolute/path')
+        t_con.get_prop('non_absolute/path')
 
 
-def test_props_set_prop_must_be_absolute(mocker):
+def test_telnet_set_prop_must_be_absolute(mocker):
     cmd = 'test123'
     setup_props_mock(mocker, cmd)
-    p_con = PropsConnection('localhost', 55554)
+    t_con = TelnetConnection('localhost', 55554)
     with pytest.raises(ValueError):
-        p_con.set_prop('non_absolute/path', 'test value')
+        t_con.set_prop('non_absolute/path', 'test value')

@@ -1,8 +1,10 @@
 """
 non-FlightGear-specific utility functionality
 """
-import multiprocess as mp
+import warnings
 from typing import Any, Union, ByteString
+
+import multiprocess as mp
 
 
 class EventPipe:
@@ -66,3 +68,18 @@ def strip_end(text: Union[str, ByteString], suffix: Union[str, ByteString]) -> U
     if suffix and text.endswith(suffix):
         return text[: -len(suffix)]
     return text
+
+
+def deprecate_rename_wrapper(old_obj: object, old_fn: str, new_obj: object, new_fn: str):
+    def new_fn_with_warning(*args, **kwargs):
+        # Turn on warnings after the old name has been used
+        warnings.simplefilter('default')
+
+        warnings.warn(
+            f'{old_obj}:{old_fn} has been renamed to {new_obj}:{new_fn}. Please use the new name',
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return getattr(new_obj, new_fn)(*args, **kwargs)
+
+    setattr(old_obj, old_fn, new_fn_with_warning)
