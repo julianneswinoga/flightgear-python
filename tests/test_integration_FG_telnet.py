@@ -2,7 +2,7 @@ import time
 
 import pytest
 
-from flightgear_python.fg_if import PropsConnection
+from flightgear_python.fg_if import TelnetConnection
 from flightgear_python.fg_util import FGConnectionError
 
 
@@ -10,7 +10,7 @@ pytestmark = pytest.mark.fg_integration
 
 
 def test_telnet_list_props():
-    t_con = PropsConnection('localhost', 5500)
+    t_con = TelnetConnection('localhost', 5500)
     t_con.connect()
 
     sun_prop_dict_immediate = t_con.list_props('/ephemeris/sun', recurse_limit=0)
@@ -23,7 +23,7 @@ def test_telnet_list_props():
 
 
 def test_telnet_get_prop():
-    t_con = PropsConnection('localhost', 5500)
+    t_con = TelnetConnection('localhost', 5500)
     t_con.connect()
 
     sim_time_1 = t_con.get_prop('/sim/time/steady-clock-sec')
@@ -33,7 +33,7 @@ def test_telnet_get_prop():
 
 
 def test_telnet_set_prop():
-    t_con = PropsConnection('localhost', 5500)
+    t_con = TelnetConnection('localhost', 5500)
     t_con.connect()
 
     t_con.set_prop('/controls/flight/rudder', 0.5)
@@ -46,6 +46,6 @@ def test_telnet_set_prop():
 
 
 def test_telnet_wrong_port():
-    t_con = PropsConnection('localhost', 123)
+    t_con = TelnetConnection('localhost', 123)
     with pytest.raises(FGConnectionError):
         t_con.connect()

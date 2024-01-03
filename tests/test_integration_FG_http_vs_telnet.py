@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from flightgear_python.fg_if import HTTPConnection, PropsConnection
+from flightgear_python.fg_if import HTTPConnection, TelnetConnection
 
 
 pytestmark = pytest.mark.fg_integration
@@ -11,7 +11,7 @@ pytestmark = pytest.mark.fg_integration
 @pytest.mark.parametrize('recurse_limit', [0, 1, None])
 def test_comparison_list_props(recurse_limit):
     h_con = HTTPConnection('localhost', 8080)
-    t_con = PropsConnection('localhost', 5500)
+    t_con = TelnetConnection('localhost', 5500)
     t_con.connect()
 
     http_sun_prop_dict_immediate = h_con.list_props('/ephemeris/sun', recurse_limit=recurse_limit)
@@ -29,7 +29,7 @@ def test_comparison_list_props(recurse_limit):
 
 def test_comparison_get_prop():
     h_con = HTTPConnection('localhost', 8080)
-    t_con = PropsConnection('localhost', 5500)
+    t_con = TelnetConnection('localhost', 5500)
     t_con.connect()
 
     http_sim_time = h_con.get_prop('/sim/time/steady-clock-sec')
@@ -39,7 +39,7 @@ def test_comparison_get_prop():
 
 def test_comparison_set_prop():
     h_con = HTTPConnection('localhost', 8080)
-    t_con = PropsConnection('localhost', 5500)
+    t_con = TelnetConnection('localhost', 5500)
     t_con.connect()
 
     h_con.set_prop('/controls/flight/aileron', 0.5)
