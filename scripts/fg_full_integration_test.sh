@@ -2,19 +2,28 @@
 set -eu
 
 base_dir='/tmp/fg-py-integration-test'
-fg_exec="$base_dir/FlightGear-2020.3.19-x86_64.AppImage"
+# Names from the sourceforge download URL
+# See https://sourceforge.net/projects/flightgear/files/
+# Note: This value is also hardcoded in `.circleci/config.yml` as a cache step
+fg_exec_name='FlightGear-2020.3.19-x86_64.AppImage'
+fg_root_compressed_name='FlightGear-2020.3.19-data.txz'
+
 fg_root="$base_dir/fgdata"
 fg_home="$base_dir/fghome"
-fg_root_compressed="$base_dir/FlightGear-2020.3.19-data.txz"
+
+fg_exec_path="$base_dir/$fg_exec_name"
+fg_root_compressed_path="$base_dir/$fg_root_compressed_name"
 
 mkdir -p "$base_dir"
 
-if ! [ -f "$fg_exec" ]; then
-    wget --output-document "$fg_exec" 'https://netactuate.dl.sourceforge.net/project/flightgear/release-2020.3/FlightGear-2020.3.19-x86_64.AppImage'
-    chmod +x "$fg_exec"
+if ! [ -f "$fg_exec_path" ]; then
+    wget --output-document "$fg_exec_path" \
+    "https://netactuate.dl.sourceforge.net/project/flightgear/release-2020.3/$fg_exec_name"
+    chmod +x "$fg_exec_path"
 fi
-if ! [ -f "$fg_root_compressed" ]; then
-    wget --output-document "$fg_root_compressed" 'https://netactuate.dl.sourceforge.net/project/flightgear/release-2020.3/FlightGear-2020.3.19-data.txz'
+if ! [ -f "$fg_root_compressed_path" ]; then
+    wget --output-document "$fg_root_compressed_path" \
+    "https://netactuate.dl.sourceforge.net/project/flightgear/release-2020.3/$fg_root_compressed_name"
 fi
 if ! [ -d "$fg_root" ]; then
     # Don't add trailing slash to exclude
@@ -29,7 +38,7 @@ if ! [ -d "$fg_root" ]; then
         --exclude='fgdata/AI/Traffic' \
         --exclude='fgdata/Models' \
         --directory="$base_dir" \
-        --checkpoint=20000 -x -f "$fg_root_compressed"
+        --checkpoint=20000 -x -f "$fg_root_compressed_path"
 fi
 
 # based on https://wiki.flightgear.org/Resource_Tracking_for_FlightGear#Startup_Profiles
@@ -67,7 +76,7 @@ EOF
 )
 
 rm -r "$fg_home" || true
-FG_HOME="$fg_home" timeout 600 "$fg_exec" --appimage-extract-and-run --fg-root="$fg_root" \
+FG_HOME="$fg_home" timeout 600 "$fg_exec_path" --appimage-extract-and-run --fg-root="$fg_root" \
     --aircraft=ufo \
     --airport=ksfo \
     --fdm=null \
