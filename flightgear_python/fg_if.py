@@ -29,8 +29,10 @@ class FGConnection:
     """
     Base class for FlightGear connections
     sphinx-no-autodoc
+    :param rx_timeout_s: Optional timeout value in seconds when receiving data
     """
 
+    # These are filled from the child class
     fg_net_struct: Optional[Struct] = None
 
     def __init__(self, rx_timeout_s: float = 2.0):
@@ -135,10 +137,11 @@ class FDMConnection(FGConnection):
     FlightGear Flight Dynamics Model Connection
 
     :param fdm_version: Net FDM version (24 or 25)
+    :param rx_timeout_s: Optional timeout value in seconds when receiving data
     """
 
-    def __init__(self, fdm_version: int):
-        super().__init__()
+    def __init__(self, fdm_version: int, rx_timeout_s: float = 2.0):
+        super().__init__(rx_timeout_s=rx_timeout_s)
         # TODO: Support auto-version check
         if fdm_version == 24:
             from .fdm_v24 import fdm_struct
@@ -155,10 +158,11 @@ class CtrlsConnection(FGConnection):
     FlightGear Controls Connection
 
     :param ctrls_version: Net Ctrls version (27)
+    :param rx_timeout_s: Optional timeout value in seconds when receiving data
     """
 
-    def __init__(self, ctrls_version: int):
-        super().__init__()
+    def __init__(self, ctrls_version: int, rx_timeout_s: float = 2.0):
+        super().__init__(rx_timeout_s=rx_timeout_s)
         # TODO: Support auto-version check
         if ctrls_version == 27:
             from .ctrls_v27 import ctrls_struct
@@ -173,10 +177,11 @@ class GuiConnection(FGConnection):
     FlightGear GUI Connection
 
     :param gui_version: Net GUI version (8)
+    :param rx_timeout_s: Optional timeout value in seconds when receiving data
     """
 
-    def __init__(self, gui_version: int):
-        super().__init__()
+    def __init__(self, gui_version: int, rx_timeout_s: float = 2.0):
+        super().__init__(rx_timeout_s=rx_timeout_s)
         # TODO: Support auto-version check
         if gui_version == 8:
             from .gui_v8 import gui_struct
