@@ -75,6 +75,7 @@ def deprecate_rename_wrapper(old_obj: object, old_fn: str, new_obj: object, new_
     Small wrapper function to soft-rename objects
     sphinx-no-autodoc
     """
+
     def new_fn_with_warning(*args, **kwargs):
         # Turn on warnings after the old name has been used
         warnings.simplefilter('default')

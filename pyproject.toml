@@ -45,7 +45,8 @@ skip-string-normalization = true
 [tool.flake8]
 max-line-length = 120
 ignore = [
-    'E731',
+    'E731', # Do not assign a lambda expression, use a def
+    'W503', # Line break occurred before a binary operator (incompatible with black)
 ]
 
 [tool.pytest.ini_options]

@@ -46,7 +46,7 @@ jobs:
             - "/home/circleci/.cache/pypoetry/virtualenvs"
       - run:
           name: Run black
-          command: poetry run black --no-color flightgear_python/ scripts/ tests/
+          command: poetry run black --check --no-color flightgear_python/ scripts/ tests/
       - run:
           name: Run flake8
           command: poetry run flake8 --color=never flightgear_python/ scripts/ tests/
