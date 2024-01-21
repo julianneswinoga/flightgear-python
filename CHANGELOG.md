@@ -1,3 +1,13 @@
+#### [1.6.0](https://github.com/julianneswinoga/flightgear-python/compare/1.5.0...1.6.0)
+
+> 21 January 2024
+
+- Create `Struct` directly in interface files, rather than using a `dict` and creating the `Struct` in `fg_if.py` [`091519b`](https://github.com/julianneswinoga/flightgear-python/commit/091519b21a4b8e02e6002ac053400a49d156a153)
+- Expose `rx_timeout_s` to the `FGConnection` classes (`FDMConnection`, `CtrlsConnection`, `GuiConnection`) [`9682f9a`](https://github.com/julianneswinoga/flightgear-python/commit/9682f9af298eb2740604e304b116fe9818bae75e)
+- Fix `rx_timeout_s`, add RX timeout tests [`f7981b1`](https://github.com/julianneswinoga/flightgear-python/commit/f7981b180f5791d4d489956417c359db7662807c)
+- Fix running `black` in CI (it wasn't actually being enforced) [`484c36b`](https://github.com/julianneswinoga/flightgear-python/commit/484c36b93f9956c295e6f3ec684447764b0b1586)
+- Update copyright year in license, docs [`8bf1c29`](https://github.com/julianneswinoga/flightgear-python/commit/8bf1c2913bf9bfb6caf6b6fda31cdc368bf69abb)
+
 #### [1.5.0](https://github.com/julianneswinoga/flightgear-python/compare/1.4.1...1.5.0)
 
 > 2 January 2024
