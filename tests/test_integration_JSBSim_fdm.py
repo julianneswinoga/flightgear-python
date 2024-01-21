@@ -2,14 +2,24 @@ import math
 
 from flightgear_python.fg_if import FDMConnection
 
-# from testing_common import supported_fdm_versions
+from testing_common import supported_fdm_versions
 from jsbsim_wrapper.jsbsim_wrapper import FlightGearUdpOutput, JsbConfig, Waypoint, setup_jsbsim
-
-import pytest
 
 # TODO: JSBSim 1.1.11 doesn't support FDM v25
 #  Once we drop 3.6 we can fully test v25
-supported_fdm_versions = [24]
+jsb_fg_versions = [24]
+
+
+def pytest_generate_tests(metafunc):
+    test_params = []
+    for supported_fdm_version in supported_fdm_versions:
+        if supported_fdm_version is None:
+            # Special auto-version, should be tested with all available JSB FDM interface versions
+            for jsb_version in jsb_fg_versions:
+                test_params.append((supported_fdm_version, jsb_version))
+        elif supported_fdm_version in jsb_fg_versions:
+            test_params.append((supported_fdm_version, supported_fdm_version))
+    metafunc.parametrize('fdm_version, jsb_fg_version', test_params)
 
 
 def fdm_callback(fdm_data, event_pipe):
@@ -22,9 +32,8 @@ def fdm_callback(fdm_data, event_pipe):
     event_pipe.child_send(child_data)
 
 
-@pytest.mark.parametrize('fdm_version', supported_fdm_versions)
-def test_jsbsim_integration(fdm_version, capsys):
-    fg_to_py_port = 5000 + fdm_version  # So that tests can run parallel
+def test_jsbsim_integration(fdm_version, jsb_fg_version, capsys):
+    fg_to_py_port = 5000 + jsb_fg_version  # So that tests can run parallel
     fdm_conn = FDMConnection(fdm_version=fdm_version)
     fdm_conn.connect_rx('localhost', fg_to_py_port, fdm_callback)
 
@@ -37,7 +46,7 @@ def test_jsbsim_integration(fdm_version, capsys):
             Waypoint(46.765000, 7.626200, 3500),
         ],
         flightgear_outputs=[
-            FlightGearUdpOutput('localhost', fg_to_py_port, update_rate, fg_version=fdm_version),
+            FlightGearUdpOutput('localhost', fg_to_py_port, update_rate, fg_version=jsb_fg_version),
         ],
         time_step=jsb_time_step,
     )
@@ -49,7 +58,7 @@ def test_jsbsim_integration(fdm_version, capsys):
     pos_history = []
     for sim_step_idx in range(total_sim_steps):
         if not jsbfdm.run():
-            print(f'Test ended early {fdm_version}, {sim_step_idx}')
+            print(f'Test ended early {fdm_version}, {jsb_fg_version}, {sim_step_idx}')
             assert False
 
         assert fdm_conn.rx_proc.is_alive()
