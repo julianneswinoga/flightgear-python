@@ -104,6 +104,8 @@ class FGConnection:
             if '10035' in str(e):
                 self.fg_rx_sock.setblocking(True)
                 return
+            else:
+                raise e
 
         try:
             s: Container = self.fg_net_struct.parse(rx_msg)
