@@ -110,3 +110,12 @@ def test_fdm_bad_port(mocker, fdm_version):
     fdm_c = FDMConnection(fdm_version)
     with pytest.raises(FGConnectionError):
         fdm_c.connect_rx('localhost', 1, lambda data, pipe: data)
+
+
+@pytest.mark.timeout(3)  # If this fails don't wait a long time
+@pytest.mark.parametrize('fdm_version', supported_fdm_versions)
+def test_fdm_rx_timeout(mocker, fdm_version):
+    fdm_c = FDMConnection(fdm_version, rx_timeout_s=0.1)
+    fdm_c.connect_rx('localhost', 9999, lambda data, pipe: data)
+    with pytest.raises(FGConnectionError, match='[Tt]imeout'):
+        fdm_c._fg_packet_roundtrip()

@@ -68,7 +68,7 @@ class FGConnection:
         except Exception as e:
             raise FGConnectionError(f'Could not bind to {fg_rx_addr}: {e}')
         self.fg_rx_sock.settimeout(self.rx_timeout_s)
-        self.fg_rx_sock.setblocking(True)
+        # See note in _fg_packet_roundtrip()::recvfrom()
         self.fg_rx_cb = rx_cb
 
         return self.event_pipe
@@ -91,6 +91,20 @@ class FGConnection:
             rx_msg, _ = self.fg_rx_sock.recvfrom(1024)
         except socket.timeout as e:
             raise FGConnectionError(f'Timeout waiting for data, waited {self.rx_timeout_s} seconds') from e
+        except BlockingIOError as e:
+            """
+            On Linux, setblocking(True) resets the timeout value to infinite (effectively
+            calling settimeout(0)). But on Windows you need to _explicitly_ call
+            setblocking(True) AFTER settimeout() or else the socket is nonblocking
+            (and will error out with BlockingIOError: [WinError 10035] A non-blocking
+            socket operation could not be completed immediately). So instead of
+            checking the platform and optionally calling setblocking() (bleh) we catch
+            the error, call setblocking(True) and then try again.
+            """
+            if '10035' in str(e):
+                self.fg_rx_sock.setblocking(True)
+                return
+
         try:
             s: Container = self.fg_net_struct.parse(rx_msg)
         except ConstError as e:

@@ -27,6 +27,7 @@ requests-mock = "^1.11.0"
 Flake8-pyproject = "^1.2.3"
 # Following are pegged at the latest version that supports Python 3.6
 pytest = "==7.0.1"
+pytest-timeout = "==2.1.0"
 GitPython = "==3.1.20"
 pytest-mock = "==3.6.1"
 JSBSim = { version = "==1.1.11", markers = "python_version != '3.10'" }
