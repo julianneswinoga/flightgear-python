@@ -52,6 +52,7 @@ def test_telnet_set_prop_must_be_absolute(mocker):
 
 def test_telnet_deprecated_name_still_works():
     from flightgear_python.fg_if import PropsConnection
+
     with pytest.deprecated_call():
         t_con = PropsConnection('localhost', 55554)
     # Prevent 'ResourceWarning: unclosed' warning

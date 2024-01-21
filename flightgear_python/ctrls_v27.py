@@ -73,7 +73,8 @@ ctrls_struct = Struct(
     'magvar_deg' / Float64b,  # local magnetic variation
     'icing' / Int32ub,
     'speedup' / Int32ub,  # integer speedup multiplier
-    'freeze' / BitStruct(  # Default is big-endian
+    'freeze'
+    / BitStruct(  # Default is big-endian
         other=BitsInteger((Int32ub.sizeof() * 8) - 3),  # Rest of uint32 minus the 3 flags
         fuel=Bit,
         position=Bit,

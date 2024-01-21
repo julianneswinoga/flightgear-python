@@ -191,6 +191,7 @@ class PropertyTreeValue(NamedTuple):
     Internal representation for working with values from the property tree
     sphinx-no-autodoc
     """
+
     absolute_path: str
     value_str: str
     type_str: str
