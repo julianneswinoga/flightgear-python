@@ -146,8 +146,8 @@ class FDMConnection(FGConnection):
             from .fdm_v25 import fdm_struct
         else:
             raise NotImplementedError(f'FDM version {fdm_version} not supported yet')
-        # Create Struct from Dict
-        self.fg_net_struct = Struct(*[k / v for k, v in fdm_struct.items()])
+
+        self.fg_net_struct = fdm_struct
 
 
 class CtrlsConnection(FGConnection):
@@ -164,8 +164,8 @@ class CtrlsConnection(FGConnection):
             from .ctrls_v27 import ctrls_struct
         else:
             raise NotImplementedError(f'Controls version {ctrls_version} not supported yet')
-        # Create Struct from Dict
-        self.fg_net_struct = Struct(*[k / v for k, v in ctrls_struct.items()])
+
+        self.fg_net_struct = ctrls_struct
 
 
 class GuiConnection(FGConnection):
@@ -182,8 +182,8 @@ class GuiConnection(FGConnection):
             from .gui_v8 import gui_struct
         else:
             raise NotImplementedError(f'GUI version {gui_version} not supported yet')
-        # Create Struct from Dict
-        self.fg_net_struct = Struct(*[k / v for k, v in gui_struct.items()])
+
+        self.fg_net_struct = gui_struct
 
 
 class PropertyTreeValue(NamedTuple):
