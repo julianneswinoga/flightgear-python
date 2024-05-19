@@ -30,11 +30,11 @@ Start FlightGear with:
 `--native-fdm=socket,out,30,localhost,5501,udp --native-ctrls=socket,out,30,localhost,5503,udp --native-ctrls=socket,in,30,localhost,5504,udp`
 """
 if __name__ == '__main__':  # NOTE: This is REQUIRED on Windows!
-    ctrls_conn = CtrlsConnection(ctrls_version=27)
+    ctrls_conn = CtrlsConnection()
     ctrls_event_pipe = ctrls_conn.connect_rx('localhost', 5503, ctrls_callback)
     ctrls_conn.connect_tx('localhost', 5504)
 
-    fdm_conn = FDMConnection(fdm_version=24)  # May need to change version from 24
+    fdm_conn = FDMConnection()
     fdm_event_pipe = fdm_conn.connect_rx('localhost', 5501, fdm_callback)
 
     ctrls_conn.start()  # Start the Ctrls RX/TX loop

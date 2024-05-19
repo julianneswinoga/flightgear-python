@@ -19,7 +19,7 @@ Start FlightGear with `--native-fdm=socket,out,30,localhost,5501,udp --native-fd
 these external commands)
 """
 if __name__ == '__main__':  # NOTE: This is REQUIRED on Windows!
-    fdm_conn = FDMConnection(fdm_version=24)  # May need to change version from 24
+    fdm_conn = FDMConnection()
     fdm_event_pipe = fdm_conn.connect_rx('localhost', 5501, fdm_callback)
     fdm_conn.connect_tx('localhost', 5502)
     fdm_conn.start()  # Start the FDM RX/TX loop
