@@ -4,10 +4,11 @@ from flightgear_python.fg_if import CtrlsConnection
 
 
 pytestmark = pytest.mark.fg_integration
-ctrls_version = 27  # FlightGear-2020.3.19-x86_64.AppImage
+ctrls_version_and_auto = [None, 27]  # FlightGear-2020.3.19-x86_64.AppImage
 
 
-def test_ctrls_rx_and_tx_integration():
+@pytest.mark.parametrize('ctrls_version', ctrls_version_and_auto)
+def test_ctrls_rx_and_tx_integration(ctrls_version):
     def rx_cb(ctrls_data, event_pipe):
         (run_idx,) = event_pipe.child_recv()
         child_callback_version = ctrls_data['version']
@@ -29,7 +30,8 @@ def test_ctrls_rx_and_tx_integration():
         ctrls_c._fg_packet_roundtrip()
         run_idx, parent_callback_version = ctrls_c.event_pipe.parent_recv()
         assert run_idx == i
-        assert parent_callback_version == ctrls_version
+        if ctrls_version is not None:
+            assert parent_callback_version == ctrls_version
 
     # Prevent 'ResourceWarning: unclosed' warning
     ctrls_c.fg_rx_sock.close()

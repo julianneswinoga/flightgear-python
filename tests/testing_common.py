@@ -3,13 +3,16 @@ from pathlib import Path
 
 
 supported_fdm_versions = [
+    None,  # Auto-version
     24,
     25,
 ]
 supported_ctrls_versions = [
+    None,  # Auto-version
     27,
 ]
 supported_gui_versions = [
+    None,  # Auto-version
     8,
 ]
 
