@@ -1,3 +1,11 @@
+#### [1.7.0](https://github.com/julianneswinoga/flightgear-python/compare/1.6.0...1.7.0)
+
+> 19 May 2024
+
+- Implement auto-version parsing for the `FGConnection` classes (`FDMConnection`, `CtrlsConnection`, `GuiConnection`) [`9e51476`](https://github.com/julianneswinoga/flightgear-python/commit/9e514762660b74352a6b088beb8f8c93b1ce1a23)
+- Add integration test to run all example code, enable rx_proc.daemon [`b537012`](https://github.com/julianneswinoga/flightgear-python/commit/b53701278193906e0005721c2663e8861fec7cc1)
+- Update docs/examples to use auto versioning [`0f814e5`](https://github.com/julianneswinoga/flightgear-python/commit/0f814e59618cd9c8a08b74ee557ada761034ef25)
+
 #### [1.6.0](https://github.com/julianneswinoga/flightgear-python/compare/1.5.0...1.6.0)
 
 > 21 January 2024
