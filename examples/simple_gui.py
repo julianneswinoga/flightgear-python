@@ -16,7 +16,7 @@ def gui_callback(gui_data, event_pipe):
 Start FlightGear with `--native-gui=socket,out,30,localhost,5504,udp --native-gui=socket,in,30,localhost,5505,udp`
 """
 if __name__ == '__main__':  # NOTE: This is REQUIRED on Windows!
-    gui_conn = GuiConnection(gui_version=8)
+    gui_conn = GuiConnection()
     gui_event_pipe = gui_conn.connect_rx('localhost', 5504, gui_callback)
     # Note: I couldn't get FlightGear to do anything with the returned data on this interface
     # I think it's just ignoring everything. Technically you can send data back though.

@@ -30,7 +30,7 @@ def ctrls_callback(ctrls_data, event_pipe):
 Start FlightGear with `--native-ctrls=socket,out,30,localhost,5503,udp --native-ctrls=socket,in,30,localhost,5504,udp`
 """
 if __name__ == '__main__':  # NOTE: This is REQUIRED on Windows!
-    ctrls_conn = CtrlsConnection(ctrls_version=27)
+    ctrls_conn = CtrlsConnection()
     ctrls_event_pipe = ctrls_conn.connect_rx('localhost', 5503, ctrls_callback)
     ctrls_conn.connect_tx('localhost', 5504)
     ctrls_conn.start()  # Start the Ctrls RX/TX loop
