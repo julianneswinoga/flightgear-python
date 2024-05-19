@@ -10,10 +10,14 @@ from typing import Any, ByteString, Callable, Dict, Optional, Tuple, Union, List
 import multiprocess as mp
 import requests
 
-from construct import ConstError, Struct, Container
+from construct import ConstError, Struct, Container, Construct, Int32ub, Int32ul
 
 from .general_util import EventPipe, strip_end, deprecate_rename_wrapper
 from .fg_util import FGConnectionError, FGCommunicationError, fix_fg_radian_parsing
+from .fdm_v24 import fdm_struct as fdm_struct_v24
+from .fdm_v25 import fdm_struct as fdm_struct_v25
+from .ctrls_v27 import ctrls_struct as ctrls_struct_v27
+from .gui_v8 import gui_struct as gui_struct_v8
 
 rx_callback_type = Callable[[Container, EventPipe], Optional[Container]]
 """
@@ -34,6 +38,7 @@ class FGConnection:
 
     # These are filled from the child class
     fg_net_struct: Optional[Struct] = None
+    fg_auto_partial_parse: Optional['PartialParseSwitchStruct'] = None
 
     def __init__(self, rx_timeout_s: float = 2.0):
         self.event_pipe = EventPipe(duplex=True)
@@ -107,6 +112,11 @@ class FGConnection:
             else:
                 raise e
 
+        # Auto-version logic
+        if self.fg_auto_partial_parse and self.fg_net_struct is None:
+            # We lazily create the actual struct that will be used for parsing
+            self.fg_net_struct = self.fg_auto_partial_parse.resolve(rx_msg)
+
         try:
             s: Container = self.fg_net_struct.parse(rx_msg)
         except ConstError as e:
@@ -148,63 +158,109 @@ class FGConnection:
         self.rx_proc.terminate()
 
 
+class PartialParseSwitchStruct:
+    """
+    A utility class that allows runtime switching of which version of a struct
+    is used to parse an incoming message. We use this (complexity) instead of
+    construct's conditional utilities because it makes looking at the individual
+    struct versions a bit less overwhelming, and easier to compare.
+    sphinx-no-autodoc
+    :param partial_parse_construct: The Construct that will be used to switch which
+    version of the Struct is resolved
+    :param replacement_full_structs: Mapping of struct versions to Structs
+    """
+
+    def __init__(self, partial_parse_construct: Construct, replacement_full_structs: Dict[Any, Struct]):
+        self.partial_parse_construct = partial_parse_construct
+        self.replacement_full_structs = replacement_full_structs
+
+    def resolve(self, message: bytes) -> Struct:
+        """
+        Resolve a message to a full Struct
+        :param message: The message to partially parse
+        :return: The full Struct based on the partial parsing of the message
+        """
+        version: Any = self.partial_parse_construct.parse(message)
+        supported_version_list = list(self.replacement_full_structs.keys())
+        if version not in supported_version_list:
+            raise FGCommunicationError(
+                f'Auto-version detected {version} is not in the list of supported versions: {supported_version_list}'
+            )
+        return self.replacement_full_structs[version]
+
+
 class FDMConnection(FGConnection):
     """
     FlightGear Flight Dynamics Model Connection
 
-    :param fdm_version: Net FDM version (24 or 25)
+    :param fdm_version: Net FDM version (24, 25, or None for auto-detection)
     :param rx_timeout_s: Optional timeout value in seconds when receiving data
     """
 
-    def __init__(self, fdm_version: int, rx_timeout_s: float = 2.0):
+    def __init__(self, fdm_version: Optional[int] = None, rx_timeout_s: float = 2.0):
         super().__init__(rx_timeout_s=rx_timeout_s)
-        # TODO: Support auto-version check
-        if fdm_version == 24:
-            from .fdm_v24 import fdm_struct
-        elif fdm_version == 25:
-            from .fdm_v25 import fdm_struct
-        else:
-            raise NotImplementedError(f'FDM version {fdm_version} not supported yet')
+        fdm_support_dict: Dict[int, Struct] = {
+            24: fdm_struct_v24,
+            25: fdm_struct_v25,
+        }
 
-        self.fg_net_struct = fdm_struct
+        if fdm_version is None:
+            self.fg_auto_partial_parse = PartialParseSwitchStruct(
+                partial_parse_construct=Int32ub,
+                replacement_full_structs=fdm_support_dict,
+            )
+        else:
+            self.fg_net_struct = fdm_support_dict.get(fdm_version)
+            if self.fg_net_struct is None:
+                raise NotImplementedError(f'Manually specified FDM version {fdm_version} not supported yet')
 
 
 class CtrlsConnection(FGConnection):
     """
     FlightGear Controls Connection
 
-    :param ctrls_version: Net Ctrls version (27)
+    :param ctrls_version: Net Ctrls version (27, or None for auto-detection)
     :param rx_timeout_s: Optional timeout value in seconds when receiving data
     """
 
-    def __init__(self, ctrls_version: int, rx_timeout_s: float = 2.0):
+    def __init__(self, ctrls_version: Optional[int] = None, rx_timeout_s: float = 2.0):
         super().__init__(rx_timeout_s=rx_timeout_s)
-        # TODO: Support auto-version check
-        if ctrls_version == 27:
-            from .ctrls_v27 import ctrls_struct
+        ctrls_support_dict: Dict[int, Struct] = {
+            27: ctrls_struct_v27,
+        }
+        if ctrls_version is None:
+            self.fg_auto_partial_parse = PartialParseSwitchStruct(
+                partial_parse_construct=Int32ub,
+                replacement_full_structs=ctrls_support_dict,
+            )
         else:
-            raise NotImplementedError(f'Controls version {ctrls_version} not supported yet')
-
-        self.fg_net_struct = ctrls_struct
+            self.fg_net_struct = ctrls_support_dict.get(ctrls_version)
+            if self.fg_net_struct is None:
+                raise NotImplementedError(f'Manually specified Controls version {ctrls_version} not supported yet')
 
 
 class GuiConnection(FGConnection):
     """
     FlightGear GUI Connection
 
-    :param gui_version: Net GUI version (8)
+    :param gui_version: Net GUI version (8, or None for auto-detection)
     :param rx_timeout_s: Optional timeout value in seconds when receiving data
     """
 
-    def __init__(self, gui_version: int, rx_timeout_s: float = 2.0):
+    def __init__(self, gui_version: Optional[int] = None, rx_timeout_s: float = 2.0):
         super().__init__(rx_timeout_s=rx_timeout_s)
-        # TODO: Support auto-version check
-        if gui_version == 8:
-            from .gui_v8 import gui_struct
+        gui_support_dict: Dict[int, Struct] = {
+            8: gui_struct_v8,
+        }
+        if gui_version is None:
+            self.fg_auto_partial_parse = PartialParseSwitchStruct(
+                partial_parse_construct=Int32ul,
+                replacement_full_structs=gui_support_dict,
+            )
         else:
-            raise NotImplementedError(f'GUI version {gui_version} not supported yet')
-
-        self.fg_net_struct = gui_struct
+            self.fg_net_struct = gui_support_dict.get(gui_version)
+            if self.fg_net_struct is None:
+                raise NotImplementedError(f'Manually specified GUI version {gui_version} not supported yet')
 
 
 class PropertyTreeValue(NamedTuple):

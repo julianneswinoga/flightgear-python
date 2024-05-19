@@ -7,6 +7,9 @@ import pytest
 
 @pytest.mark.parametrize('fdm_version', supported_fdm_versions)
 def test_fdm_length(mocker, fdm_version):
+    if fdm_version is None:
+        pytest.skip('Testing length makes no sense for auto version')
+
     fdm_length = {
         24: 408,
         25: 552,
@@ -40,6 +43,9 @@ def setup_fdm_mock(mocker, version: int, struct_length: int):
 
 @pytest.mark.parametrize('fdm_version', supported_fdm_versions)
 def test_fdm_rx_and_tx(mocker, fdm_version):
+    if fdm_version is None:
+        pytest.skip('Can\'t generate mocks for auto version')
+
     def rx_cb(fdm_data, event_pipe):
         (run_idx,) = event_pipe.child_recv()
         callback_version = fdm_data['version']
@@ -73,6 +79,9 @@ def test_fdm_rx_and_tx(mocker, fdm_version):
 
 @pytest.mark.parametrize('fdm_version', supported_fdm_versions)
 def test_fdm_only_rx(mocker, fdm_version):
+    if fdm_version is None:
+        pytest.skip('Can\'t generate mocks for auto version')
+
     def rx_cb(fdm_data, event_pipe):
         callback_version = fdm_data['version']
         event_pipe.child_send((callback_version,))

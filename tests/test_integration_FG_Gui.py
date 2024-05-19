@@ -4,10 +4,11 @@ from flightgear_python.fg_if import GuiConnection
 
 
 pytestmark = pytest.mark.fg_integration
-gui_version = 8  # FlightGear-2020.3.19-x86_64.AppImage
+gui_version_and_auto = [None, 8]  # FlightGear-2020.3.19-x86_64.AppImage
 
 
-def test_gui_rx_and_tx_integration():
+@pytest.mark.parametrize('gui_version', gui_version_and_auto)
+def test_gui_rx_and_tx_integration(gui_version):
     def rx_cb(gui_data, event_pipe):
         (run_idx,) = event_pipe.child_recv()
         child_callback_version = gui_data['version']
@@ -29,7 +30,8 @@ def test_gui_rx_and_tx_integration():
         gui_c._fg_packet_roundtrip()
         run_idx, parent_callback_version = gui_c.event_pipe.parent_recv()
         assert run_idx == i
-        assert parent_callback_version == gui_version
+        if gui_version is not None:
+            assert parent_callback_version == gui_version
 
     # Prevent 'ResourceWarning: unclosed' warning
     gui_c.fg_rx_sock.close()
