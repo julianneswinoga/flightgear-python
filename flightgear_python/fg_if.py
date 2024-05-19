@@ -148,6 +148,7 @@ class FGConnection:
         Start the RX/TX loop with FlightGear
         """
         self.rx_proc = mp.Process(target=self._rx_process)
+        self.rx_proc.daemon = True  # rx_proc should exit when parent exits
         self.rx_proc.start()
         _ = self.event_pipe.parent_recv()  # Wait for child to actually run
 

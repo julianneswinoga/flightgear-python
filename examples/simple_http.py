@@ -8,9 +8,9 @@ from pprint import pprint
 from flightgear_python.fg_if import HTTPConnection
 
 """
-Start FlightGear with `--httpd=5050`
+Start FlightGear with `--httpd=8080`
 """
-http_conn = HTTPConnection('localhost', 5050)
+http_conn = HTTPConnection('localhost', 8080)
 pprint(http_conn.list_props('/', recurse_limit=0))  # List the top-level properties, no recursion
 while True:
     alt_ft = http_conn.get_prop('/position/altitude-ft')
