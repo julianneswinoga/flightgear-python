@@ -3,7 +3,7 @@ import time
 import pytest
 
 from flightgear_python.fg_if import TelnetConnection
-from flightgear_python.fg_util import FGConnectionError
+from flightgear_python.fg_util import FGConnectionError, FGCommunicationError
 
 
 pytestmark = pytest.mark.fg_integration
@@ -49,3 +49,23 @@ def test_telnet_wrong_port():
     t_con = TelnetConnection('localhost', 123)
     with pytest.raises(FGConnectionError):
         t_con.connect()
+
+
+def test_telnet_no_connect():
+    t_con = TelnetConnection('localhost', 5500)
+    with pytest.raises(FGCommunicationError):
+        t_con.get_prop('/controls/flight/rudder')
+
+
+def test_telnet_bad_path_cmd():
+    t_con = TelnetConnection('localhost', 5500)
+    t_con.connect()
+    with pytest.raises(FGCommunicationError):
+        t_con.list_props('/aaa/bbb/ccc')
+
+
+def test_telnet_bad_internal_cmd():
+    t_con = TelnetConnection('localhost', 5500)
+    t_con.connect()
+    with pytest.raises(FGCommunicationError):
+        t_con._send_cmd_get_resp('what a bad command')

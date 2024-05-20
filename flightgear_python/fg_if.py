@@ -423,7 +423,10 @@ class TelnetConnection(PropsConnectionBase):
         return f'{in_str}\r\n'.encode()
 
     def _send_cmd_get_resp(self, cmd_str: str, buflen: int = 512) -> str:
-        self.sock.sendall(self._telnet_str(cmd_str))
+        try:
+            self.sock.sendall(self._telnet_str(cmd_str))
+        except BrokenPipeError as e:
+            raise FGCommunicationError('Failed to send data. Did you call .connect()?') from e
 
         # FG telnet always ends with a prompt (`cwd`> ), and since we always
         # operate relative to the root directory, it should always be the same prompt
@@ -438,7 +441,7 @@ class TelnetConnection(PropsConnectionBase):
         resp_bytes = strip_end(resp_bytes, b'\r\n' + ending_bytes)  # trim the prompt
 
         resp_str = resp_bytes.decode()
-        if resp_str.startswith('-ERR'):
+        if resp_str.startswith('-ERR') or resp_str.startswith('Valid commands are'):
             raise FGCommunicationError(f'Bad telnet command "{cmd_str}". Response: "{resp_str}"')
         return resp_str
 
