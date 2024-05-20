@@ -58,3 +58,8 @@ addopts = '-m "not fg_integration"'
 filterwarnings = [
     'ignore::DeprecationWarning:setuptools:2',
 ]
+
+[tool.coverage.run]
+branch = true
+timid = true
+concurrency = ['multiprocessing']
