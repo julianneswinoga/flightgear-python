@@ -89,7 +89,7 @@ jobs:
           command: poetry build --no-ansi --no-interaction
       - run:
           name: Install coverage
-          command: pip install -U coverage coveralls
+          command: pip install -U coverage[toml] coveralls
       - when:
           # Run full testing only on one version, otherwise only run unit tests
           condition:
