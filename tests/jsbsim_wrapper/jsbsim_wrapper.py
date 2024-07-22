@@ -1,4 +1,5 @@
 import math
+import site
 import tempfile
 from typing import List, NamedTuple
 from pathlib import Path
@@ -204,7 +205,15 @@ def setup_jsbsim(jsb_config: JsbConfig) -> jsbsim.FGFDMExec:
         fixed_waypoints.append(fixed_wp)
     jsb_config = jsb_config._replace(waypoints=fixed_waypoints)
 
-    jsbfdm = jsbsim.FGFDMExec(None)  # Use JSBSim default aircraft data
+    # fix for NixOS apparently breaking jsbsim
+    root_dir = None  # By default use JSBSim default aircraft data
+    for sitepackagedir in site.getsitepackages():
+        matching_paths = Path(sitepackagedir).glob('**/aircraft/c310')
+        matching_path = next(matching_paths, None)
+        if matching_path:
+            root_dir = str(matching_path.parent.parent)
+            break
+    jsbfdm = jsbsim.FGFDMExec(root_dir)
     default_dbg_level = jsbfdm.get_debug_level()
 
     jsbfdm.set_debug_level(0)  # initial output is too noisy
