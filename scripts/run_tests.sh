@@ -2,7 +2,7 @@
 set -e
 
 if [ "$1" = 'clean' ]; then
-  python3.6 -m venv --clear .venv
+  python3 -m venv --clear .venv
 fi
 
 . ./.venv/bin/activate
