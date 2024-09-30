@@ -1,6 +1,22 @@
 #!/bin/bash
 set -eu
 
+# Check programs available
+function check_cmd_exists {
+  if ! command -v "$1" 2>&1 >/dev/null; then
+    echo "$1 not found"
+    exit 1
+  fi
+}
+check_cmd_exists socat
+check_cmd_exists nc
+check_cmd_exists timeout
+check_cmd_exists curl
+check_cmd_exists wget
+check_cmd_exists tar
+check_cmd_exists ps
+check_cmd_exists poetry
+
 base_dir='/tmp/fg-py-integration-test'
 # Names from the sourceforge download URL
 # See https://sourceforge.net/projects/flightgear/files/
