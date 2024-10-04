@@ -3,6 +3,7 @@ We don't care about pickling per-say, but multiprocess uses the dill library
 to spin up new processes. This only seems to be a problem on Windows, but we need
 to support the weird way Windows implements fork().
 """
+
 import dill
 
 from flightgear_python.fg_if import FDMConnection, CtrlsConnection, GuiConnection

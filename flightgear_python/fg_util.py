@@ -1,6 +1,7 @@
 """
 FlightGear-specific utility functionality
 """
+
 import math
 
 from construct import Container

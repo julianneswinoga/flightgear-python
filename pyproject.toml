@@ -11,28 +11,32 @@ readme = "README.md"
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.6.2"
+python = "^3.8.1"
 construct = "^2.10"
-# Following are pegged at the latest version that supports Python 3.6
-multiprocess = "==0.70.12.2"
-requests = "==2.27.1"
+multiprocess = "^0.70"
+requests = "^2.32"
 
 [tool.poetry.dev-dependencies]
-sphinx = "==4.3.2"  # Supports 3.6, and doesn't depend on importlib-metadata (conflict with flake8)
-sphinx_mdinclude = "^0.5.2"
-sphinx-rtd-theme = "^0.5.2"  # Can't `poetry update` with 1.0.0?
-sh = { version = "^1.14.3", markers = "sys_platform == 'linux'" }
-pytest-cov = "^3.0.0"
-requests-mock = "^1.11.0"
-Flake8-pyproject = "^1.2.3"
-# Following are pegged at the latest version that supports Python 3.6
-pytest = "==7.0.1"
-pytest-timeout = "==2.1.0"
-GitPython = "==3.1.20"
-pytest-mock = "==3.6.1"
-JSBSim = { version = "==1.1.11", markers = "python_version != '3.10'" }
-black = "==22.8.0"
-flake8 = "==5.0.4"
+sphinx_mdinclude = "^0.6"
+sphinx-rtd-theme = "^2.0"
+sh = { version = "^2.0", markers = "sys_platform == 'linux'" }
+pytest-cov = "^5.0"
+requests-mock = "^1.12"
+Flake8-pyproject = "^1.2"
+pytest = "^8.3"
+pytest-timeout = "^2.3"
+GitPython = "^3.1"
+pytest-mock = "^3.14"
+JSBSim = "^1.2"
+# Manually fix JSBSim dependency. Specify numpy version that supports PEP 517 for 3.11
+numpy = [
+    { version = "^1.26", markers = "python_version >= '3.11'" },
+    { version = "^1.24", markers = "python_version < '3.11'" }
+]
+black = "^24.8"
+flake8 = "^7.1"
+# Following are pegged at the latest version that supports Python 3.8
+sphinx = "==7.1.2"
 
 [tool.poetry.urls]
 "Repository" = "https://github.com/julianneswinoga/flightgear-python"

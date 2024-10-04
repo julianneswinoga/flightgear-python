@@ -1,6 +1,7 @@
 """
 non-FlightGear-specific utility functionality
 """
+
 import warnings
 from typing import Any, Union, ByteString
 
