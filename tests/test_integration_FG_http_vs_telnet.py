@@ -24,7 +24,7 @@ def test_comparison_list_props(recurse_limit):
         http_value = http_sun_prop_dict_immediate['properties'][prop_full_path]
         telnet_value = telnet_sun_prop_dict_immediate['properties'][prop_full_path]
         # We can't compare actual values (could be minute changes) but we can compare types
-        assert type(http_value) == type(telnet_value), f'value path is {prop_full_path}'
+        assert type(http_value) is type(telnet_value), f'value path is {prop_full_path}'
 
 
 def test_comparison_get_prop():

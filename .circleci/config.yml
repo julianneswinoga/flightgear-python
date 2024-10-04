@@ -7,10 +7,7 @@ orbs:
 update-pip-poetry: &update-pip-poetry |-
   poetry --version
   pip3 install --upgrade pip
-  # 3.6 support was dropped in 1.2.0
-  pip3 install --upgrade poetry==1.1.15
-  # Work around broken urllib3 dependency from poetry 1.1.15
-  pip3 install --upgrade urllib3==1.26.12
+  pip3 install --upgrade poetry~=1.8.3
   # Don't put more poetry commands here, they'll use the old version for some reason
 
 poetry-cache: &poetry-cache |-
@@ -66,15 +63,6 @@ jobs:
       - run:
           name: Poetry show version
           command: poetry --version
-      - when:
-          # 3.10 has a problem with numpy 1.19.5, from JSBSim
-          # This hack can be removed when 3.6 support is dropped
-          condition:
-            equal: [ "3.10", << parameters.python-version >> ]
-          steps:
-            - run:
-                name: Delete JSBSim tests
-                command: rm --verbose tests/test_*JSBSim*.py
       - restore_cache:
           key: *poetry-cache
       - run:
@@ -93,7 +81,7 @@ jobs:
       - when:
           # Run full testing only on one version, otherwise only run unit tests
           condition:
-            equal: [ "3.6", << parameters.python-version >> ]
+            equal: [ "3.8", << parameters.python-version >> ]
           steps:
             - run:
                 name: Install Integration Test Dependencies
@@ -144,7 +132,7 @@ jobs:
             # omg wtf circleci. No "else"?
             and:
               - not:
-                  equal: [ "3.6", << parameters.python-version >> ]
+                  equal: [ "3.8", << parameters.python-version >> ]
           steps:
             - run:
                 name: Run pytest
@@ -185,18 +173,7 @@ jobs:
           name: Install Poetry
           command: |
             Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; RefreshEnv
-            pyenv exec python -m pip install -U poetry==1.1.15
-            # Work around broken urllib3 dependency from poetry 1.1.15
-            pyenv exec python -m pip install --upgrade urllib3==1.26.12
-      - when:
-          # 3.10 has a problem with numpy 1.19.5, from JSBSim
-          # This hack can be removed when 3.6 support is dropped
-          condition:
-            equal: [ "3.10.5", << parameters.python-version >> ]
-          steps:
-            - run:
-                name: Delete JSBSim tests
-                command: remove-item "tests/test_*JSBSim*.py"
+            pyenv exec python -m pip install -U poetry~=1.8.3
       #      - restore_cache:
       #          key: *poetry-cache
       - run:
@@ -227,7 +204,7 @@ jobs:
   poetry_publish:
     executor:
       name: python/default
-      tag: "3.6"
+      tag: "3.8"
     steps:
       - checkout
       - run:
@@ -272,18 +249,18 @@ workflows:
       - lint:
           matrix:
             parameters:
-              python-version: [ "3.6" ]
+              python-version: [ "3.8" ]
           <<: *everything-filter # required since `deploy` has tag filters AND requires `build`
       - build_install_test_windows:
           matrix:
             parameters:
-              #python-version: ["3.6.8", "3.7.9", "3.8.10", "3.9.13", "3.10.5"]
+              #python-version: ["3.8.10", "3.9.13", "3.10.5"]
               python-version: [ "3.8.10" ]
           <<: *everything-filter # required since `deploy` has tag filters AND requires `build`
       - build_install_test:
           matrix:
             parameters:
-              python-version: [ "3.6", "3.7", "3.8", "3.9", "3.10" ]
+              python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
           <<: *everything-filter # required since `deploy` has tag filters AND requires `build`
       - poetry_publish:
           requires:

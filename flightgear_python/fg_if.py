@@ -1,6 +1,7 @@
 """
 Main FlightGear interface module
 """
+
 import copy
 import socket
 import sys

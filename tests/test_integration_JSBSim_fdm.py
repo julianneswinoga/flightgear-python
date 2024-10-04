@@ -5,9 +5,7 @@ from flightgear_python.fg_if import FDMConnection
 from testing_common import supported_fdm_versions
 from jsbsim_wrapper.jsbsim_wrapper import FlightGearUdpOutput, JsbConfig, Waypoint, setup_jsbsim
 
-# TODO: JSBSim 1.1.11 doesn't support FDM v25
-#  Once we drop 3.6 we can fully test v25
-jsb_fg_versions = [24]
+jsb_fg_versions = [24, 25]
 
 
 def pytest_generate_tests(metafunc):
