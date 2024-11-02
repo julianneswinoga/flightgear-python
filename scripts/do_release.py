@@ -18,6 +18,7 @@ conv_yn = lambda x: x[0].lower()
 
 
 def check_environment():
+    # auto-changelog from npm: https://www.npmjs.com/package/auto-changelog
     for prog_name in ('auto-changelog', 'poetry'):
         if sh.which(prog_name) is None:
             print(f'Could not find {prog_name} in PATH! I need it!')
