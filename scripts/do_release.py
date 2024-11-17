@@ -148,7 +148,12 @@ def main():
         if not apply_actions(actions):
             clean_exit(0)
 
-        is_semver = lambda x: isinstance(version.parse(x), version.Version)
+        def is_semver(x):
+            try:
+                return isinstance(version.parse(x), version.Version)
+            except version.InvalidVersion:
+                return False
+
         is_increment = lambda x: version.parse(x) > version.parse(str(git_info['latest_tag']))
         poetry_version_rules = ('patch', 'minor', 'major')
         check_semver_or_rule = lambda x: (is_semver(x) and is_increment(x)) or x in poetry_version_rules
