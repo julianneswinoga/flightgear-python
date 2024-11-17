@@ -256,13 +256,12 @@ workflows:
       - build_install_test_windows:
           matrix:
             parameters:
-              #python-version: ["3.8.10", "3.9.13", "3.10.5"]
-              python-version: [ "3.8.10" ]
+              python-version: [ "3.8.10", "3.12.7" ]
           <<: *everything-filter # required since `deploy` has tag filters AND requires `build`
       - build_install_test:
           matrix:
             parameters:
-              python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+              python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
           <<: *everything-filter # required since `deploy` has tag filters AND requires `build`
       - poetry_publish:
           requires:
