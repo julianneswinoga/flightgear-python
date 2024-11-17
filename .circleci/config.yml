@@ -7,6 +7,7 @@ orbs:
 update-pip-poetry: &update-pip-poetry |-
   poetry --version
   pip3 install --upgrade pip
+  # Note: When changing poetry version, do multi-file find-replace
   pip3 install --upgrade poetry~=1.8.3
   # Don't put more poetry commands here, they'll use the old version for some reason
 
