@@ -1,3 +1,10 @@
+#### [2.0.1](https://github.com/julianneswinoga/flightgear-python/compare/2.0.0...2.0.1)
+
+> 17 November 2024
+
+- Fix readthedocs poetry config [`f4842e0`](https://github.com/julianneswinoga/flightgear-python/commit/f4842e08d00e5912964ea54b4d7f416415cc2da9)
+- Add linux 3.13, windows 3.12.7 to CI matrix [`6cf4122`](https://github.com/julianneswinoga/flightgear-python/commit/6cf4122c5deee75a8a07d0658bf6a55e980510af)
+
 ### [2.0.0](https://github.com/julianneswinoga/flightgear-python/compare/1.7.0...2.0.0)
 
 > 17 November 2024
