@@ -7,10 +7,10 @@ build:
   tools:
     python: "3.8"
   jobs:
+    post_create_environment:
+      - python -m pip install poetry~=1.8.3
     post_install:
-      - pip install poetry~=1.8.3
-      - poetry config virtualenvs.create false
-      - poetry install --no-ansi --no-interaction
+      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --no-ansi --no-interaction
 
 sphinx:
   configuration: docs/source/conf.py
