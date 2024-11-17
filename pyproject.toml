@@ -64,6 +64,7 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
+data_file = '.coverage'
 branch = true
 timid = true
 concurrency = ['multiprocessing']
