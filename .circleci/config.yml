@@ -189,7 +189,7 @@ jobs:
           name: Install coverage
           command: |
             Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; RefreshEnv
-            pyenv exec python -m pip install -U coverage
+            pyenv exec python -m pip install -U coverage[toml]
       - run:
           name: Poetry build
           command: |
