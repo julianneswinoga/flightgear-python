@@ -1,3 +1,16 @@
+### [2.0.0](https://github.com/julianneswinoga/flightgear-python/compare/1.7.0...2.0.0)
+
+> 17 November 2024
+
+- Drop support for python 3.6, 3.8 is minimum now [`65ca345`](https://github.com/julianneswinoga/flightgear-python/commit/65ca345521532370dee0ab61251a585390bf8ec6)
+- Check for telnet `BrokenPipeError`, better match on bad telnet cmd [`dd28aad`](https://github.com/julianneswinoga/flightgear-python/commit/dd28aad375225126533e87ddd8836fddfa412a08)
+- Fix `version.parse()` in `do_release.py` [`0a65f24`](https://github.com/julianneswinoga/flightgear-python/commit/0a65f24c90f7fc132744a4701ea22d908ba6a4ba)
+- Add `coverage[toml]` now that coverage settings are in `pyproject.toml` [`58bd492`](https://github.com/julianneswinoga/flightgear-python/commit/58bd492804d93c7bf2df56982e79b1506ca9357a)
+- Pre-check for required programs in `fg_full_integration_test.sh` [`c96de5c`](https://github.com/julianneswinoga/flightgear-python/commit/c96de5c70697c1a131eb0ff73cf187ac7f0be9ac)
+- Explicitly search for jsbsim root dir [`491feea`](https://github.com/julianneswinoga/flightgear-python/commit/491feea5aa3c1523aefff2f00e5cd1f3557b952c)
+- Don't explicitly specify 3.6 in `run_tests.sh` [`a046635`](https://github.com/julianneswinoga/flightgear-python/commit/a04663514468baf9cb9eacc6310bd863d4f6d633)
+- Minor comment for `do_release.py` [`2991aa4`](https://github.com/julianneswinoga/flightgear-python/commit/2991aa4e8d3adcaaabbc27d4ed3f3d45f37c3331)
+
 #### [1.7.0](https://github.com/julianneswinoga/flightgear-python/compare/1.6.0...1.7.0)
 
 > 19 May 2024
