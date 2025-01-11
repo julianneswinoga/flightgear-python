@@ -1,3 +1,10 @@
+#### [2.0.2](https://github.com/julianneswinoga/flightgear-python/compare/2.0.1...2.0.2)
+
+> 11 January 2025
+
+- Update dependencies [`38dea3c`](https://github.com/julianneswinoga/flightgear-python/commit/38dea3cf46ef9f4061e875c5719bab0fe3cc0a64)
+- Change FG struct reference links to point to sourceforge (GitHub mirror isn't up to date) [`13d80d4`](https://github.com/julianneswinoga/flightgear-python/commit/13d80d4355d784957b9ca7fd0e4266b610f92480)
+
 #### [2.0.1](https://github.com/julianneswinoga/flightgear-python/compare/2.0.0...2.0.1)
 
 > 17 November 2024
