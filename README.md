@@ -48,9 +48,9 @@ if __name__ == '__main__':  # NOTE: This is REQUIRED on Windows!
 
 Supported interfaces:
 - [x] [Native Protocol](https://wiki.flightgear.org/Property_Tree/Sockets) (currently only UDP)
-  - [x] Flight Dynamics Model ([`net_fdm.hxx`](https://github.com/FlightGear/flightgear/blob/next/src/Network/net_fdm.hxx)) version 24, 25
-  - [x] Controls ([`net_ctrls.hxx`](https://github.com/FlightGear/flightgear/blob/next/src/Network/net_ctrls.hxx)) version 27
-  - [x] GUI ([`net_gui.hxx`](https://github.com/FlightGear/flightgear/blob/next/src/Network/net_gui.hxx)) version 8
+  - [x] Flight Dynamics Model ([`net_fdm.hxx`](https://sourceforge.net/p/flightgear/flightgear/ci/next/tree/src/Network/net_fdm.hxx)) version 24, 25
+  - [x] Controls ([`net_ctrls.hxx`](https://sourceforge.net/p/flightgear/flightgear/ci/next/tree/src/Network/net_ctrls.hxx)) version 27
+  - [x] GUI ([`net_gui.hxx`](https://sourceforge.net/p/flightgear/flightgear/ci/next/tree/src/Network/net_gui.hxx)) version 8
 - [ ] [Generic Protocol](https://wiki.flightgear.org/Generic_protocol)
 - [x] [Telnet](https://wiki.flightgear.org/Telnet_usage)
 - [x] [HTTP](https://wiki.flightgear.org/Property_Tree_Servers)
