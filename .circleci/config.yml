@@ -138,7 +138,7 @@ jobs:
           steps:
             - run:
                 name: Run pytest
-                command: poetry run coverage run -m pytest tests/
+                command: poetry run coverage run -m pytest -vv tests/
 
   # OMG why does windows on circleci suck so much :////
   build_install_test_windows:
@@ -201,7 +201,7 @@ jobs:
           name: Run pytest
           command: |
             Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; RefreshEnv
-            pyenv exec python -m poetry run coverage run -m pytest tests/
+            pyenv exec python -m poetry run coverage run -m pytest -vv tests/
 
   poetry_publish:
     executor:
