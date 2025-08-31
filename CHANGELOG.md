@@ -1,3 +1,13 @@
+#### [2.0.3](https://github.com/julianneswinoga/flightgear-python/compare/2.0.2...2.0.3)
+
+> 31 August 2025
+
+- Update `poetry.lock` [`57a3f64`](https://github.com/julianneswinoga/flightgear-python/commit/57a3f64e2e0c55b79a8e9848cb8aa463b326d035)
+- Only test FDM version 24 with JSBSim now... [`59a6551`](https://github.com/julianneswinoga/flightgear-python/commit/59a6551daef985a9fd85ebc77301aa7e35fec1d3)
+- Pytest in verbose mode [`d9bf492`](https://github.com/julianneswinoga/flightgear-python/commit/d9bf492eed43741cf8b8a0842e24cb11a8b13b3e)
+- Use `tool.poetry.group.dev.dependencies` instead of deprecated `tool.poetry.dev-dependencies` [`a126bde`](https://github.com/julianneswinoga/flightgear-python/commit/a126bdebc801a52835315f69a74bc847aa31c12e)
+- Force 3.8 when updating poetry.lock [`d406b60`](https://github.com/julianneswinoga/flightgear-python/commit/d406b606d6ad37029d312927e42c79d75802068d)
+
 #### [2.0.2](https://github.com/julianneswinoga/flightgear-python/compare/2.0.1...2.0.2)
 
 > 11 January 2025
