@@ -16,7 +16,7 @@ construct = "^2.10"
 multiprocess = "^0.70"
 requests = "^2.32"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 sphinx_mdinclude = "^0.6"
 sphinx-rtd-theme = "^2.0"
 sh = { version = "^2.0", markers = "sys_platform == 'linux'" }
