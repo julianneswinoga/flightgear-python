@@ -23,4 +23,4 @@ done
 
 poetry install
 poetry build
-pytest --cov-report term-missing:skip-covered --cov=flightgear_python tests/ "$@"
+pytest -vv --cov-report term-missing:skip-covered --cov=flightgear_python tests/ "$@"
