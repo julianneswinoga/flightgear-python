@@ -5,7 +5,13 @@ from flightgear_python.fg_if import FDMConnection
 from testing_common import supported_fdm_versions
 from jsbsim_wrapper.jsbsim_wrapper import FlightGearUdpOutput, JsbConfig, Waypoint, setup_jsbsim
 
-jsb_fg_versions = [24, 25]
+jsb_fg_versions = [
+    24,
+    # JSB dropped dynamic FG versions in 1.2.2:
+    # https://github.com/JSBSim-Team/jsbsim/commit/91ebed4c
+    # and just defaulted to 24 (without throwing warnings or errors...)
+    # 25,
+]
 
 
 def pytest_generate_tests(metafunc):
@@ -56,7 +62,8 @@ def test_jsbsim_integration(fdm_version, jsb_fg_version, capsys):
     pos_history = []
     for sim_step_idx in range(total_sim_steps):
         if not jsbfdm.run():
-            print(f'Test ended early {fdm_version}, {jsb_fg_version}, {sim_step_idx}')
+            with capsys.disabled():
+                print(f'Test ended early {fdm_version}, {jsb_fg_version}, {sim_step_idx}')
             assert False
 
         assert fdm_conn.rx_proc.is_alive()
