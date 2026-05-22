@@ -1,3 +1,9 @@
+#### [2.1.0](https://github.com/julianneswinoga/flightgear-python/compare/2.0.3...2.1.0)
+
+> 22 May 2026
+
+- Add `TelnetConnection.run_nasal()` for evaluating Nasal over telnet [`#40`](https://github.com/julianneswinoga/flightgear-python/pull/40)
+
 #### [2.0.3](https://github.com/julianneswinoga/flightgear-python/compare/2.0.2...2.0.3)
 
 > 31 August 2025
