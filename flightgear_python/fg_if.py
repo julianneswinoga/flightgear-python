@@ -486,6 +486,22 @@ class TelnetConnection(PropsConnectionBase):
         _ = self._send_cmd_get_resp(f'set {prop_str} {str(value)}')
         # We don't care about the response
 
+    def run_nasal(self, code: str) -> str:
+        """
+        Run a block of Nasal code in FlightGear and return whatever it prints.
+
+        FG needs to have been started with ``--allow-nasal-from-sockets``,
+        otherwise the command is silently dropped and you get back ``''``.
+        See https://wiki.flightgear.org/Telnet_usage for the protocol details.
+
+        :param code: Nasal source to evaluate
+        :return: Output from ``print()`` calls inside the code, stripped
+        """
+        # _send_cmd_get_resp appends \r\n via _telnet_str, which acts as a no-op
+        # command that causes FG to emit the `/>` prompt after running the nasal block.
+        resp = self._send_cmd_get_resp(f'nasal\r\n{code}\r\n##EOF##\r\n')
+        return resp.strip()
+
     def get_values_and_dirs(self, path: str) -> Tuple[List[PropertyTreeValue], List[str]]:
         """
         Internal method to populate a shared property tree data structure

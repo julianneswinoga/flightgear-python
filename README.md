@@ -53,4 +53,5 @@ Supported interfaces:
   - [x] GUI ([`net_gui.hxx`](https://sourceforge.net/p/flightgear/flightgear/ci/next/tree/src/Network/net_gui.hxx)) version 8
 - [ ] [Generic Protocol](https://wiki.flightgear.org/Generic_protocol)
 - [x] [Telnet](https://wiki.flightgear.org/Telnet_usage)
+  - [x] Nasal code execution (`run_nasal()`)
 - [x] [HTTP](https://wiki.flightgear.org/Property_Tree_Servers)

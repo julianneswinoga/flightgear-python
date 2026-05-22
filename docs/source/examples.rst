@@ -153,3 +153,10 @@ Simple HTTP (properties) interface
 .. raw:: html
 
    </details>
+
+Simple Nasal interface
+----------------------
+
+.. literalinclude:: /../../examples/simple_nasal.py
+    :caption: examples/simple_nasal.py
+    :lines: 2-

@@ -17,4 +17,6 @@ Quick-Start
 
         * The ``60`` is how fast FG will check the telnet connection (I think)
 
+        * ``--allow-nasal-from-sockets`` (only needed for :meth:`TelnetConnection.run_nasal`)
+
 #. Run your python code!
